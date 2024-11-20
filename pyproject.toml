@@ -12,9 +12,18 @@ requests = "^2.32.3"
 beautifulsoup4 = "^4.12.3 "
 python-telegram-bot = "^21.7"
 python-dotenv = "^1.0.1"
+apscheduler = "^3.10.4"
+pydantic-settings = "^2.6.1"
+
+[tool.poetry.dev-dependencies]
+ruff = "^0.7.4"
 
 [tool.poetry.scripts]
-start-bot = "grupy_sanca_agenda_bot.bot:main"
+start-bot = "grupy_sanca_agenda_bot.main:main"
+
+[tool.ruff]
+lint.select = ["I", "C", "E", "F"]
+lint.extend-select = ["I"]
 
 [build-system]
 requires = ["poetry-core"]
