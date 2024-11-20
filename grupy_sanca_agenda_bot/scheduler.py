@@ -11,18 +11,16 @@ def setup_scheduler(application):
     scheduler.add_job(
         send_weekly_events,
         "cron",
-        day_of_week="wed",
-        hour=18,
-        minute=8,
+        day_of_week="mon",
+        hour=9,
         args=[application],
     )
 
     scheduler.add_job(
         send_today_events,
         "cron",
-        day_of_week="wed",
-        hour=18,
-        minute=8,
+        day_of_week="mon-sun",
+        hour=12,
         args=[application],
     )
 
