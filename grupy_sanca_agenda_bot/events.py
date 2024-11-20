@@ -74,11 +74,15 @@ def filter_events(events, period="week"):
     ]
 
 
-def format_event_message(event, description=True):
-    message = f"*{event['title']}*\n\n"
-    message += f"*🕒 Data e Hora:* {event['date_time'].strftime('%d/%m/%Y às %Hh%M')}\n"
-    message += f"*📍 Local:* {event['location']}\n\n"
-    if description:
-        message += f"*📝 Descrição:*\n{event['description']}\n\n"
-    message += f"🔗 [Clique aqui para se inscrever no Meetup]({event['link']})\n\n"
+def format_event_message(events, header="", description=True):
+    message = f"*📅 {header}:*\n\n"
+    for event in events:
+        message += f"*{event['title']}*\n\n"
+        message += (
+            f"*🕒 Data e Hora:* {event['date_time'].strftime('%d/%m/%Y às %Hh%M')}\n"
+        )
+        message += f"*📍 Local:* {event['location']}\n\n"
+        if description:
+            message += f"*📝 Descrição:*\n{event['description']}\n\n"
+        message += f"🔗 [Clique aqui para se inscrever no Meetup]({event['link']})\n\n"
     return message

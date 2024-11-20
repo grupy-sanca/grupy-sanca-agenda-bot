@@ -1,27 +1,17 @@
-from telegram import Update
-from telegram.ext import Application
+from telegram.ext import Application, CommandHandler
 
-from grupy_sanca_agenda_bot.events import format_event_message
+from grupy_sanca_agenda_bot.commands import agenda, next, start
+from grupy_sanca_agenda_bot.scheduler import setup_scheduler
 from grupy_sanca_agenda_bot.settings import settings
 
 
-async def send_message(message: str, application: Application) -> None:
-    await application.bot.send_message(
-        chat_id=settings.GROUP_CHAT_ID,
-        text=message,
-        parse_mode="Markdown",
-    )
+def bot():
+    application = Application.builder().token(settings.TELEGRAM_BOT_TOKEN).build()
 
+    setup_scheduler(application)
 
-async def reply_message(message: str, update: Update) -> None:
-    await update.message.reply_text(message, parse_mode="Markdown")
+    application.add_handler(CommandHandler("start", start))
+    application.add_handler(CommandHandler("proximo", next))
+    application.add_handler(CommandHandler("agenda", agenda))
 
-
-async def send_events(events, application, header="", description=True):
-    if events:
-        message = f"*📅 {header}:*\n\n"
-        for event in events:
-            message += format_event_message(event, description)
-        await send_message(message, application)
-    else:
-        await send_message(f"❌ Não há {header} agendados.", application)
+    application.run_polling()

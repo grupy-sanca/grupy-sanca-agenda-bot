@@ -1,8 +1,12 @@
 import pytz
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
-from grupy_sanca_agenda_bot.bot import send_events
-from grupy_sanca_agenda_bot.events import filter_events, load_events
+from grupy_sanca_agenda_bot.events import (
+    filter_events,
+    format_event_message,
+    load_events,
+)
+from grupy_sanca_agenda_bot.utils import send_message
 
 
 def setup_scheduler(application):
@@ -28,10 +32,18 @@ def setup_scheduler(application):
 
 
 async def send_weekly_events(application):
-    events = filter_events(load_events(), period="week", description=False)
-    await send_events(events, application, header="Eventos da Semana")
+    events = filter_events(load_events(), period="week")
+    if events:
+        message = format_event_message(
+            events, header="Eventos da Semana", description=False
+        )
+        await send_message(message, application)
 
 
 async def send_today_events(application):
-    events = filter_events(load_events(), period="today", description=False)
-    await send_events(events, application, header="Eventos de Hoje")
+    events = filter_events(load_events(), period="today")
+    if events:
+        message = format_event_message(
+            events, header="Eventos de Hoje", description=True
+        )
+        await send_message(message, application)
