@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "grupy-sanca-agenda-bot"
+version = "0.1.0"
+description = "Bot do Telegram que retorna os eventos do Meetup do grupy-sanca"
+authors = ["Juliana Karoline <julianaklulo@gmail.com>"]
+readme = "README.md"
+packages = [{include = "grupy_sanca_agenda_bot"}]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+requests = "^2.32.3"
+beautifulsoup4 = "^4.12.3 "
+python-telegram-bot = "^21.7"
+python-dotenv = "^1.0.1"
+
+[tool.poetry.scripts]
+start-bot = "grupy_sanca_agenda_bot.bot:main"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
