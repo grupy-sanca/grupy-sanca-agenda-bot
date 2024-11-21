@@ -1,37 +1,54 @@
+from asyncio import sleep
 from datetime import datetime, timedelta
 
 import pytz
-import requests
 from bs4 import BeautifulSoup
+from httpx import AsyncClient
 
 from grupy_sanca_agenda_bot.settings import settings
 
 
-def get_html_content(url):
-    response = requests.get(url)
-    if response.status_code == 200:
-        return response.text
-    else:
-        print(f"Failed to retrieve the page - status code: {response.status_code}")
-        exit(1)
+async def _get_request(url):
+    async with AsyncClient() as client:
+        try:
+            response = await client.get(url)
+            if response.status_code == 200:
+                return response.text
+            return None
+        except Exception:
+            return None
 
 
-def extract_datetime(event_link):
-    html_content = get_html_content(event_link)
+async def get_html_content(url):
+    content = await _get_request(url)
+    if content is None:
+        await sleep(0.5)
+        content = await _get_request(url)
+    return content
+
+
+async def extract_datetime(event_link):
+    html_content = await get_html_content(event_link)
+    if html_content is None:
+        return None
     soup = BeautifulSoup(html_content, "html.parser")
     date_time = soup.find("time")["datetime"]
     return datetime.fromisoformat(date_time)
 
 
-def load_events():
-    html_content = get_html_content(settings.MEETUP_GROUP_URL)
+async def load_events():
+    events = []
+    html_content = await get_html_content(settings.MEETUP_GROUP_URL)
+    if html_content is None:
+        return events
     soup = BeautifulSoup(html_content, "html.parser")
 
-    events = []
     for event in soup.select('div[id^="e-"]'):
         title = event.select_one(".ds-font-title-3").get_text(strip=True)
         link = event.find("a", href=True)["href"]
-        date_time = extract_datetime(link)
+        date_time = await extract_datetime(link)
+        if date_time is None:
+            continue
         location = event.select_one(".text-gray6").get_text(strip=True)
         description = (
             "\n".join(

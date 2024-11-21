@@ -10,7 +10,7 @@ from grupy_sanca_agenda_bot.utils import reply_message
 
 
 async def next(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    events = load_events()
+    events = await load_events()
 
     if events:
         event = events[0]
@@ -18,14 +18,18 @@ async def next(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             [event], header="Próximo Evento", description=True
         )
         await reply_message(message, update)
+    else:
+        await reply_message("Sem próximos eventos", update)
 
 
 async def agenda(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    events = filter_events(load_events(), period="agenda")
+    events = filter_events(await load_events(), period="agenda")
 
     if events:
         message = format_event_message(events, header="Agenda", description=False)
         await reply_message(message, update)
+    else:
+        await reply_message("Sem próximos eventos", update)
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
