@@ -6,7 +6,8 @@ from grupy_sanca_agenda_bot.events import (
     format_event_message,
     load_events,
 )
-from grupy_sanca_agenda_bot.utils import reply_message
+from grupy_sanca_agenda_bot.settings import settings
+from grupy_sanca_agenda_bot.utils import delete_cache, reply_message
 
 
 async def next(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -30,6 +31,11 @@ async def agenda(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         await reply_message(message, update)
     else:
         await reply_message("Sem próximos eventos", update)
+
+
+async def force_update(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    if settings.ADMINS and update.message.from_user.id in settings.ADMINS:
+        await delete_cache()
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:

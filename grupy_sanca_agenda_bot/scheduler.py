@@ -6,7 +6,7 @@ from grupy_sanca_agenda_bot.events import (
     format_event_message,
     load_events,
 )
-from grupy_sanca_agenda_bot.utils import send_message
+from grupy_sanca_agenda_bot.utils import delete_cache, send_message
 
 
 def setup_scheduler(application):
@@ -26,6 +26,13 @@ def setup_scheduler(application):
         day_of_week="mon-sun",
         hour=12,
         args=[application],
+    )
+
+    scheduler.add_job(
+        delete_cache,
+        "cron",
+        day_of_week="mon-sun",
+        hour=8,
     )
 
     scheduler.start()

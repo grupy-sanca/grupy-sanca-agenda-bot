@@ -6,6 +6,7 @@ from bs4 import BeautifulSoup
 from httpx import AsyncClient
 
 from grupy_sanca_agenda_bot.settings import settings
+from grupy_sanca_agenda_bot.utils import load_cache, save_cache
 
 
 async def _get_request(url):
@@ -37,7 +38,9 @@ async def extract_datetime(event_link):
 
 
 async def load_events():
-    events = []
+    events = await load_cache()
+    if events:
+        return events
     html_content = await get_html_content(settings.MEETUP_GROUP_URL)
     if html_content is None:
         return events
@@ -69,6 +72,7 @@ async def load_events():
             }
         )
 
+    await save_cache(events)
     return events
 
 
