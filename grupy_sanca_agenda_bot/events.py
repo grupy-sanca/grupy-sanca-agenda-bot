@@ -44,8 +44,8 @@ def extract_datetime(soup):
 
 
 def extract_location(soup):
-    venue_name = soup.find("a", attrs={"data-testid": "venue-name-link"}).get_text(strip=True)
-    venue_address = soup.find("div", attrs={"data-testid": "location-info"}).get_text(strip=True)
+    venue_name = soup.find("a", attrs={"data-event-label": "event-location"}).get_text()
+    venue_address = soup.find("a", attrs={"data-event-label": "event-location"}).next_sibling.get_text()
     return f"{venue_name} ({venue_address})"
 
 
