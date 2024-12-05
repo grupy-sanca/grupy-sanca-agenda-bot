@@ -1,9 +1,10 @@
-from asyncio import sleep
+import re
+from asyncio import gather
 from datetime import datetime, timedelta
 
 import pytz
 from bs4 import BeautifulSoup
-from httpx import AsyncClient
+from httpx import AsyncClient, Timeout
 
 from grupy_sanca_agenda_bot.settings import settings
 from grupy_sanca_agenda_bot.utils import load_cache, save_cache
@@ -12,7 +13,7 @@ from grupy_sanca_agenda_bot.utils import load_cache, save_cache
 async def _get_request(url):
     async with AsyncClient() as client:
         try:
-            response = await client.get(url)
+            response = await client.get(url, timeout=Timeout(60))
             if response.status_code == 200:
                 return response.text
             return None
@@ -22,57 +23,68 @@ async def _get_request(url):
 
 async def get_html_content(url):
     content = await _get_request(url)
-    if content is None:
-        await sleep(0.5)
-        content = await _get_request(url)
     return content
 
 
-async def extract_datetime(event_link):
-    html_content = await get_html_content(event_link)
-    if html_content is None:
-        return None
-    soup = BeautifulSoup(html_content, "html.parser")
-    date_time = soup.find("time")["datetime"]
-    return datetime.fromisoformat(date_time)
+def extract_event_links(soup):
+    RX = re.compile(r"^event-card-\d+$")
+    event_links = soup.find_all("a", attrs={"data-event-label": RX})
+    return [link["href"] for link in event_links]
+
+
+def extract_title(soup):
+    return soup.find("div", attrs={"data-event-label": "top"}).find("h1").get_text(strip=True)
+
+
+def extract_datetime(soup):
+    date_time_element = soup.find("div", attrs={"data-event-label": "info"}).find("time", class_="block")[
+        "datetime"
+    ]
+    return datetime.fromisoformat(date_time_element)
+
+
+def extract_location(soup):
+    venue_name = soup.find("a", attrs={"data-testid": "venue-name-link"}).get_text(strip=True)
+    venue_address = soup.find("div", attrs={"data-testid": "location-info"}).get_text(strip=True)
+    return f"{venue_name} ({venue_address})"
+
+
+def extract_description(soup):
+    description_elements = (
+        soup.find("div", attrs={"data-event-label": "body"}).find("div", class_="break-words").find_all("p")
+    )
+    return "\n".join([item.get_text() for item in description_elements])
 
 
 async def load_events():
     events = await load_cache()
     if events:
         return events
+
     html_content = await get_html_content(settings.MEETUP_GROUP_URL)
     if html_content is None:
         return events
+
     soup = BeautifulSoup(html_content, "html.parser")
 
-    for event in soup.select('div[id^="e-"]'):
-        title = event.select_one(".ds-font-title-3").get_text(strip=True)
-        link = event.find("a", href=True)["href"]
-        date_time = await extract_datetime(link)
-        if date_time is None:
-            continue
-        location = event.select_one(".text-gray6").get_text(strip=True)
-        description = (
-            "\n".join(
-                p.get_text(strip=True)
-                for p in event.select(".utils_cardDescription__1Qr0x p")
-            )
-            if event.select_one(".utils_cardDescription__1Qr0x")
-            else None
-        )
+    event_links = extract_event_links(soup)
+    event_contents = await gather(*[get_html_content(link) for link in event_links])
+
+    for event_content, link in zip(event_contents, event_links):
+        inner_soup = BeautifulSoup(event_content, "html.parser")
 
         events.append(
             {
-                "title": title,
-                "date_time": date_time,
-                "location": location,
-                "description": description,
+                "title": extract_title(inner_soup),
+                "date_time": extract_datetime(inner_soup),
+                "location": extract_location(inner_soup),
+                "description": extract_description(inner_soup),
                 "link": link,
             }
         )
 
     await save_cache(events)
+
     return events
 
 
@@ -90,18 +102,14 @@ def filter_events(events, period="week"):
         start = today.replace(hour=0, minute=0, second=0)
         end = today.replace(hour=23, minute=59, second=59)
 
-    return [
-        event for event in events if start <= event["date_time"].astimezone(tz) <= end
-    ]
+    return [event for event in events if start <= event["date_time"].astimezone(tz) <= end]
 
 
 def format_event_message(events, header="", description=True):
     message = f"*📅 {header}:*\n\n"
     for event in events:
         message += f"*{event['title']}*\n\n"
-        message += (
-            f"*🕒 Data e Hora:* {event['date_time'].strftime('%d/%m/%Y às %Hh%M')}\n"
-        )
+        message += f"*🕒 Data e Hora:* {event['date_time'].strftime('%d/%m/%Y às %Hh%M')}\n"
         message += f"*📍 Local:* {event['location']}\n\n"
         if description:
             message += f"*📝 Descrição:*\n{event['description']}\n\n"
