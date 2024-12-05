@@ -32,6 +32,7 @@ env = [
     "GROUP_CHAT_ID = 123",
     "ADMINS = [123, 321]",
 ]
+asyncio_default_fixture_loop_scope = "function"
 asyncio_mode = "auto"
 
 [tool.poetry.scripts]
