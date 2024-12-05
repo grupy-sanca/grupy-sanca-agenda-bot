@@ -7,7 +7,7 @@ readme = "README.md"
 packages = [{include = "grupy_sanca_agenda_bot"}]
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "^3.10"
 beautifulsoup4 = "^4.12.3 "
 python-telegram-bot = "^21.7"
 python-dotenv = "^1.0.1"
@@ -16,13 +16,26 @@ pydantic-settings = "^2.6.1"
 pytz = "^2024.2"
 httpx = "^0.27.2"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 ruff = "^0.7.4"
+pytest = "^8.3.4"
+pytest-env = "^0.6.2"
+
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+env = [
+    "TELEGRAM_BOT_TOKEN = 123",
+    "MEETUP_GROUP_URL = https://",
+    "GROUP_CHAT_ID = 123",
+    "ADMINS = [123, 321]",
+]
 
 [tool.poetry.scripts]
 start-bot = "grupy_sanca_agenda_bot.main:main"
 
 [tool.ruff]
+line-length = 110
 lint.select = ["I", "C", "E", "F"]
 lint.extend-select = ["I"]
 
