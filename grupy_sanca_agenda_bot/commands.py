@@ -15,9 +15,7 @@ async def next(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
     if events:
         event = events[0]
-        message = format_event_message(
-            [event], header="Próximo Evento", description=True
-        )
+        message = format_event_message([event], header="Próximo Evento", description=True)
         await reply_message(message, update)
     else:
         await reply_message("Sem próximos eventos", update)

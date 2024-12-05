@@ -41,16 +41,12 @@ def setup_scheduler(application):
 async def send_weekly_events(application):
     events = filter_events(await load_events(), period="week")
     if events:
-        message = format_event_message(
-            events, header="Eventos da Semana", description=False
-        )
+        message = format_event_message(events, header="Eventos da Semana", description=False)
         await send_message(message, application)
 
 
 async def send_today_events(application):
     events = filter_events(await load_events(), period="today")
     if events:
-        message = format_event_message(
-            events, header="Eventos de Hoje", description=True
-        )
+        message = format_event_message(events, header="Eventos de Hoje", description=True)
         await send_message(message, application)
