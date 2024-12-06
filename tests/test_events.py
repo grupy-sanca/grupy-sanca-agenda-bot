@@ -78,8 +78,9 @@ async def test_load_events_without_cache(
     ).mock(return_value=Response(status_code=200, text=str(meetup_event_page_soup)))
     events = await load_events()
     assert len(events) == 2
+
     keys = ["title", "date_time", "description", "location", "link"]
-    for i in range(len(events)):
-        assert all(key in keys for key in events[i])
+    for event in events:
+        assert all(key in keys for key in event)
     assert len(respx_mock.calls) == 3
     mock_save_cache.assert_awaited_once_with(events)

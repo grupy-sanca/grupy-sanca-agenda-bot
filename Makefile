@@ -5,17 +5,17 @@ install:
 	poetry install
 
 .PHONY: test
-test:
+test: install
 	poetry run pytest -vv
 
 .PHONY: lint
-lint:
+lint: install
 	poetry check --lock
 	poetry run ruff check .
 	poetry run ruff format . --check
 
 .PHONY: format
-format:
+format: install
 	poetry run ruff check . --fix
 	poetry run ruff format .
 
