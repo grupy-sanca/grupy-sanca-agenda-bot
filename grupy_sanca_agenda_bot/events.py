@@ -13,7 +13,7 @@ from grupy_sanca_agenda_bot.utils import load_cache, save_cache
 async def _get_request(url):
     async with AsyncClient() as client:
         try:
-            response = await client.get(url, timeout=Timeout(60))
+            response = await client.get(url, timeout=Timeout(settings.TIMEOUT_SECONDS))
             if response.status_code == 200:
                 return response.text
             return None
