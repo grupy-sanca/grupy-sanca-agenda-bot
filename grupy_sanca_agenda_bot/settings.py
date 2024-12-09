@@ -6,6 +6,7 @@ class Settings(BaseSettings):
     MEETUP_GROUP_URL: str
     GROUP_CHAT_ID: str
     ADMINS: list[int] | None = None
+    TIMEOUT_SECONDS: int | None = 60
     model_config = SettingsConfigDict(env_file=".env")
 
 
