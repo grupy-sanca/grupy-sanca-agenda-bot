@@ -39,6 +39,6 @@ async def load_cache():
 async def save_cache(events):
     try:
         with open("events", "wb") as fp:
-            pickle.dumps(events, fp)
+            pickle.dump(events, fp)
     except Exception:
         pass

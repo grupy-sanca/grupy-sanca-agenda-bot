@@ -9,8 +9,8 @@ from grupy_sanca_agenda_bot.events import (
 from grupy_sanca_agenda_bot.utils import delete_cache, send_message
 
 
-def setup_scheduler(application):
-    scheduler = AsyncIOScheduler(timezone=pytz.timezone("America/Sao_Paulo"))
+def setup_scheduler(application, loop):
+    scheduler = AsyncIOScheduler(timezone=pytz.timezone("America/Sao_Paulo"), event_loop=loop)
 
     scheduler.add_job(
         send_weekly_events,

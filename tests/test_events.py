@@ -2,6 +2,7 @@ from datetime import datetime
 from textwrap import dedent
 from unittest import mock
 
+import pytest
 from httpx import Response
 from respx.router import MockRouter
 
@@ -56,6 +57,7 @@ async def test_load_events_with_cache(mock_get_html_content: mock.AsyncMock, moc
     assert mock_get_html_content.call_count == 0
 
 
+@pytest.mark.respx(assert_all_mocked=True, assert_all_called=True, using="httpx")
 @mock.patch("grupy_sanca_agenda_bot.events.save_cache")
 @mock.patch("grupy_sanca_agenda_bot.events.load_cache")
 async def test_load_events_without_cache(
