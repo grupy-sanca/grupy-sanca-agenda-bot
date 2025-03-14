@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 import pytz
 from bs4 import BeautifulSoup
 from httpx import AsyncClient, Timeout
+from loguru import logger
 
 from grupy_sanca_agenda_bot.settings import settings
 from grupy_sanca_agenda_bot.utils import load_cache, save_cache
@@ -57,16 +58,20 @@ def extract_description(soup):
 
 
 async def load_events():
+    logger.debug("Loading event data...")
     events = await load_cache()
     if events:
+        logger.debug("Cache found, loading events from cache")
         return events
 
+    logger.debug("Fetching HTML content from home page")
     html_content = await get_html_content(settings.MEETUP_GROUP_URL)
     if html_content is None:
         return events
 
     soup = BeautifulSoup(html_content, "html.parser")
 
+    logger.debug("Fetching HTML content from events pages")
     event_links = extract_event_links(soup)
     event_contents = await gather(*[get_html_content(link) for link in event_links])
 
@@ -83,6 +88,10 @@ async def load_events():
             }
         )
 
+    logger.debug("Events found:")
+    logger.debug(events)
+
+    logger.debug("Saving events to cache")
     await save_cache(events)
 
     return events
