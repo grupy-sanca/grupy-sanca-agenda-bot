@@ -11,6 +11,7 @@ dependencies = [
     "APScheduler>=3.11.0",
     "beautifulsoup4>=4.12.3",
     "httpx>=0.28.1",
+    "loguru>=0.7.3",
     "pydantic-settings>=2.6.1",
     "python-dotenv>=1.0.1",
     "python-telegram-bot>=21.9",
