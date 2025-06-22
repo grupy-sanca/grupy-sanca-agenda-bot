@@ -88,21 +88,28 @@ async def load_events():
     return events
 
 
-def filter_events(events, period="week"):
+def filter_events(events, period="agenda"):
     tz = pytz.timezone("America/Sao_Paulo")
 
     today = datetime.now(tz)
-    if period == "week":
+    if period == "mensal":
+        start = today.replace(day=1, hour=0, minute=0, second=0)
+        end = (start + timedelta(days=31)).replace(day=1, hour=0, minute=0, second=0) - timedelta(seconds=1)
+    elif period == "semanal":
         start = today - timedelta(days=today.weekday())
         end = start + timedelta(days=6)
+    elif period == "hoje":
+        start = today.replace(hour=0, minute=0, second=0)
+        end = today.replace(hour=23, minute=59, second=59)
     elif period == "agenda":
         start = today
         end = today + timedelta(days=365)
-    elif period == "today":
-        start = today.replace(hour=0, minute=0, second=0)
-        end = today.replace(hour=23, minute=59, second=59)
 
     return [event for event in events if start <= event["date_time"].astimezone(tz) <= end]
+
+
+def slice_events(events, quantity):
+    return events[:quantity]
 
 
 def format_event_message(events, header="", description=True):

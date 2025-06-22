@@ -5,6 +5,7 @@ from grupy_sanca_agenda_bot.events import (
     filter_events,
     format_event_message,
     load_events,
+    slice_events,
 )
 from grupy_sanca_agenda_bot.settings import settings
 from grupy_sanca_agenda_bot.utils import delete_cache, reply_message
@@ -14,7 +15,7 @@ async def next(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     events = await load_events()
 
     if events:
-        event = events[0]
+        event = slice_events(events, 1)
         message = format_event_message([event], header="Próximo Evento", description=True)
         await reply_message(message, update)
     else:
@@ -22,10 +23,28 @@ async def next(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 
 async def agenda(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    events = filter_events(await load_events(), period="agenda")
+    events = await load_events()
 
     if events:
-        message = format_event_message(events, header="Agenda", description=False)
+        if context.args and len(context.args) > 0:
+            timeframe = context.args[0]
+
+            if timeframe in ["mensal", "semanal", "hoje"]:
+                events = filter_events(events, period=timeframe)
+                header = f"Agenda {timeframe}"
+            elif timeframe.isdigit():
+                events = slice_events(events, quantity=int(timeframe))
+                header = f"Próximos {len(events)} eventos na agenda"
+            else:
+                await reply_message(
+                    "Valor inválido, escolha entre: mensal, semanal, hoje, ou passe um número inteiro positivo",  # noqa
+                    update,
+                )
+        else:
+            events = filter_events(events, period="agenda")
+            header = "Agenda"
+
+        message = format_event_message(events, header=header, description=False)
         await reply_message(message, update)
     else:
         await reply_message("Sem próximos eventos", update)
