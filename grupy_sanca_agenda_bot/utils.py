@@ -10,6 +10,7 @@ from grupy_sanca_agenda_bot.settings import settings
 async def send_message(message: str, application: Application) -> None:
     await application.bot.send_message(
         chat_id=settings.GROUP_CHAT_ID,
+        message_thread_id=settings.GROUP_CHAT_TOPIC_ID,
         text=message,
         parse_mode="Markdown",
     )
