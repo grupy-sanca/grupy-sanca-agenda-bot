@@ -6,8 +6,16 @@ Bot desenvolvido para divulgar os eventos do Meetup no grupo do grupy-sanca no T
 
 ### Comandos:
 - `/start`: Inicia o bot e mostra os comandos disponíveis
-- `/agenda`: Mostra todos os eventos do Meetup no intervalo de 1 ano
 - `/proximo`: Mostra o próximo evento do Meetup
+- `/agenda`: Mostra todos os eventos do Meetup do ano (permite filtrar por intervalos)
+
+Filtros disponíveis pro `agenda`: `mensal`, `semanal`, `hoje` e `n` próximos eventos.
+
+Exemplos de uso:
+```
+/agenda@id_do_bot semanal
+/agenda@id_do_bot 3
+```
 
 #### Comandos de administrador:
 - `/force_update`: Força a atualização dos eventos do Meetup, útil para quando um evento é adicionado ou removido manualmente
