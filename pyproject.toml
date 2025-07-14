@@ -6,7 +6,7 @@ authors = [
     {name = "Juliana Karoline", email = "julianaklulo@gmail.com"},
 ]
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 dependencies = [
     "APScheduler>=3.11.0",
     "beautifulsoup4>=4.12.3",
@@ -19,6 +19,7 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "ipython>=9.4.0",
     "pytest>=8.3.4",
     "pytest-asyncio>=0.24.0",
     "pytest-env>=1.1.5",

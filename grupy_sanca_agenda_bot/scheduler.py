@@ -6,7 +6,7 @@ from grupy_sanca_agenda_bot.events import (
     format_event_message,
     load_events,
 )
-from grupy_sanca_agenda_bot.utils import delete_cache, send_message
+from grupy_sanca_agenda_bot.utils import PeriodEnum, delete_cache, send_message
 
 
 def setup_scheduler(application, loop):
@@ -39,14 +39,14 @@ def setup_scheduler(application, loop):
 
 
 async def send_weekly_events(application):
-    events = filter_events(await load_events(), period="semanal")
+    events = filter_events(await load_events(), period=PeriodEnum.semanal)
     if events:
         message = format_event_message(events, header="Eventos da Semana", description=False)
         await send_message(message, application)
 
 
 async def send_today_events(application):
-    events = filter_events(await load_events(), period="hoje")
+    events = filter_events(await load_events(), period=PeriodEnum.hoje)
     if events:
         message = format_event_message(events, header="Eventos de Hoje", description=True)
         await send_message(message, application)

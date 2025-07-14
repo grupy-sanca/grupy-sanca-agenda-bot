@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup
 from httpx import AsyncClient, Timeout
 
 from grupy_sanca_agenda_bot.settings import settings
-from grupy_sanca_agenda_bot.utils import load_cache, save_cache
+from grupy_sanca_agenda_bot.utils import PeriodEnum, load_cache, save_cache
 
 
 async def _get_request(url):
@@ -88,20 +88,20 @@ async def load_events():
     return events
 
 
-def filter_events(events, period="agenda"):
+def filter_events(events, period=PeriodEnum.agenda):
     tz = pytz.timezone("America/Sao_Paulo")
 
     today = datetime.now(tz)
-    if period == "mensal":
+    if period == PeriodEnum.mensal:
         start = today.replace(day=1, hour=0, minute=0, second=0)
         end = (start + timedelta(days=31)).replace(day=1, hour=0, minute=0, second=0) - timedelta(seconds=1)
-    elif period == "semanal":
+    elif period == PeriodEnum.semanal:
         start = today - timedelta(days=today.weekday())
         end = start + timedelta(days=6)
-    elif period == "hoje":
+    elif period == PeriodEnum.hoje:
         start = today.replace(hour=0, minute=0, second=0)
         end = today.replace(hour=23, minute=59, second=59)
-    elif period == "agenda":
+    elif period == PeriodEnum.agenda:
         start = today
         end = today + timedelta(days=365)
 
