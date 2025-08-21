@@ -8,7 +8,7 @@ from grupy_sanca_agenda_bot.events import (
     slice_events,
 )
 from grupy_sanca_agenda_bot.settings import settings
-from grupy_sanca_agenda_bot.utils import delete_cache, reply_message
+from grupy_sanca_agenda_bot.utils import PeriodEnum, check_is_period_valid, delete_cache, reply_message
 
 
 async def next(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -29,10 +29,10 @@ async def agenda(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         if context.args and len(context.args) > 0:
             timeframe = context.args[0]
 
-            if timeframe in ["mensal", "semanal", "hoje"]:
+            if check_is_period_valid(timeframe):
                 events = filter_events(events, period=timeframe)
                 header = f"Agenda {timeframe}"
-            elif timeframe.isdigit():
+            elif timeframe.isdigit() and int(timeframe) > 0:
                 events = slice_events(events, quantity=int(timeframe))
                 header = f"Próximos {len(events)} eventos na agenda"
             else:
@@ -41,7 +41,7 @@ async def agenda(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                     update,
                 )
         else:
-            events = filter_events(events, period="agenda")
+            events = filter_events(events, period=PeriodEnum.agenda)
             header = "Agenda"
 
         message = format_event_message(events, header=header, description=False)
