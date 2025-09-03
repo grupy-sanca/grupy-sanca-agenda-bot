@@ -141,6 +141,9 @@ class OpenEventExtractor(Extractor):
 
         return description
 
+    def extract_link(self, identifier):
+        return f"https://eventos.grupysanca.com.br/e/{identifier}"
+
     async def load_events(self):
         events = await load_cache()
         if events:
@@ -159,7 +162,7 @@ class OpenEventExtractor(Extractor):
                     "date_time": self.extract_datetime(event["attributes"]["starts-at"]),
                     "location": self.extract_location(event["attributes"]["location-name"]),
                     "description": self.extract_description(event["attributes"]["description"]),
-                    "link": "https://eventos.grupysanca.com.br/e/" + event["attributes"]["identifier"],
+                    "link": self.extract_link(event["attributes"]["identifier"]),
                 }
             )
         events.sort(key=lambda x: x["date_time"])

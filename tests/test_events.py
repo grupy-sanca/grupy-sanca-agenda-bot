@@ -115,6 +115,12 @@ class TestOpenEventExtractor:
             ).strip()
         )
 
+    def test_extract_link(self):
+        assert (
+            self.extractor.extract_link("event-identifier")
+            == "https://eventos.grupysanca.com.br/e/event-identifier"
+        )
+
     @mock.patch("grupy_sanca_agenda_bot.events.load_cache")
     @mock.patch("grupy_sanca_agenda_bot.events.OpenEventExtractor._get_request")
     async def test_load_events_with_cache(
