@@ -125,6 +125,10 @@ class OpenEventExtractor:
     def extract_datetime(self, timestamp):
         return datetime.fromisoformat(timestamp).astimezone(ZoneInfo("America/Sao_Paulo"))
 
+    def extract_location(self, raw_location):
+        print(raw_location)
+        return raw_location if raw_location else "Evento Online"
+
     def extract_description(self, raw_description):
         soup = BeautifulSoup(raw_description, "html.parser")
 
@@ -151,7 +155,7 @@ class OpenEventExtractor:
                 {
                     "title": event["attributes"]["name"],
                     "date_time": self.extract_datetime(event["attributes"]["starts-at"]),
-                    "location": event["attributes"]["location-name"],
+                    "location": self.extract_location(event["attributes"]["location-name"]),
                     "description": self.extract_description(event["attributes"]["description"]),
                     "link": "https://eventos.grupysanca.com.br/e/" + event["attributes"]["identifier"],
                 }

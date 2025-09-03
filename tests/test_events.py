@@ -97,14 +97,23 @@ class TestOpenEventExtractor:
             2025, 9, 19, 7, 0, tzinfo=ZoneInfo("America/Sao_Paulo")
         )
 
+    def test_extract_location(self):
+        assert self.extractor.extract_location("Some Location") == "Some Location"
+        assert self.extractor.extract_location(None) == "Evento Online"
+
     def test_extract_description(self):
-        raw_description = """<p>Descrição do evento com<br>quebra de linha e &amp; caracteres especiais.</p>"""
-        assert self.extractor.extract_description(raw_description) == dedent(
-            """\
+        raw_description = (
+            """<p>Descrição do evento com<br>quebra de linha e &amp; caracteres especiais.</p>"""
+        )
+        assert (
+            self.extractor.extract_description(raw_description)
+            == dedent(
+                """\
             Descrição do evento com
             quebra de linha e & caracteres especiais.
         """
-        ).strip()
+            ).strip()
+        )
 
     @mock.patch("grupy_sanca_agenda_bot.events.load_cache")
     @mock.patch("grupy_sanca_agenda_bot.events.OpenEventExtractor._get_request")

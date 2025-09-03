@@ -39,7 +39,7 @@ def open_event_api_response():
                 "attributes": {
                     "name": "Another Event",
                     "starts-at": "2024-07-15T15:00:00+00:00",
-                    "location-name": "Another Location",
+                    "location-name": None,
                     "description": "This is another event description.",
                     "url": "https://example.com/events/789012",  # Example URL
                     "identifier": "another-event-789012",
