@@ -160,6 +160,7 @@ class OpenEventExtractor:
                     "link": "https://eventos.grupysanca.com.br/e/" + event["attributes"]["identifier"],
                 }
             )
+        events.sort(key=lambda x: x["date_time"])
 
         await save_cache(events)
         return events

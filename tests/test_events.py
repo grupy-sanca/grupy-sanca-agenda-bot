@@ -148,3 +148,29 @@ class TestOpenEventExtractor:
         assert len(respx_mock.calls) == 1
 
         mock_save_cache.assert_awaited_once_with(events)
+
+    @pytest.mark.respx(assert_all_mocked=True, assert_all_called=True, using="httpx")
+    @mock.patch("grupy_sanca_agenda_bot.events.save_cache")
+    @mock.patch("grupy_sanca_agenda_bot.events.load_cache")
+    async def test_load_events_without_cache_and_event_sorting(
+        self,
+        mock_load_cache: mock.AsyncMock,
+        mock_save_cache: mock.AsyncMock,
+        respx_mock: MockRouter,
+        open_event_api_response_unsorted,
+    ):
+        mock_load_cache.return_value = []
+        respx_mock.get(settings.URL).mock(
+            return_value=Response(status_code=200, json=open_event_api_response_unsorted)
+        )
+
+        events = await self.extractor.load_events()
+        assert len(events) == 2
+        assert events[0]["date_time"] < events[1]["date_time"]
+
+        keys = ["title", "date_time", "description", "location", "link"]
+        for event in events:
+            assert all(key in keys for key in event)
+        assert len(respx_mock.calls) == 1
+
+        mock_save_cache.assert_awaited_once_with(events)
