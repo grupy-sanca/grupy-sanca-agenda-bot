@@ -11,7 +11,28 @@ from grupy_sanca_agenda_bot.settings import settings
 from grupy_sanca_agenda_bot.utils import load_cache, save_cache
 
 
-class MeetupExtractor:
+class Extractor:
+    """
+    Base class for event extractors.
+    """
+
+    async def _get_request(self, url):
+        async with AsyncClient() as client:
+            try:
+                response = await client.get(
+                    url, timeout=Timeout(settings.TIMEOUT_SECONDS), follow_redirects=True
+                )
+                if response.status_code == 200:
+                    return response
+                return None
+            except Exception:
+                return None
+
+    async def load_events(self):
+        raise NotImplementedError
+
+
+class MeetupExtractor(Extractor):
     """
     Extractor for Meetup events.
 
@@ -21,21 +42,9 @@ class MeetupExtractor:
     def __init__(self, url: str):
         self.url = url
 
-    async def _get_request(self, url):
-        async with AsyncClient() as client:
-            try:
-                response = await client.get(
-                    url, timeout=Timeout(settings.TIMEOUT_SECONDS), follow_redirects=True
-                )
-                if response.status_code == 200:
-                    return response.text
-                return None
-            except Exception:
-                return None
-
     async def get_html_content(self, url):
         content = await self._get_request(url)
-        return content
+        return content.text if content else None
 
     def extract_event_links(self, soup):
         RX = re.compile(r"^event-card-\d+$")
@@ -100,7 +109,7 @@ class MeetupExtractor:
         return events
 
 
-class OpenEventExtractor:
+class OpenEventExtractor(Extractor):
     """
     Extractor for Open Event Platform events.
 
@@ -110,17 +119,9 @@ class OpenEventExtractor:
     def __init__(self, url: str):
         self.url = url
 
-    async def _get_request(self, url):
-        async with AsyncClient() as client:
-            try:
-                response = await client.get(
-                    url, timeout=Timeout(settings.TIMEOUT_SECONDS), follow_redirects=True
-                )
-                if response.status_code == 200:
-                    return response.json()
-                return None
-            except Exception:
-                return None
+    async def get_json_content(self, url):
+        resp = await self._get_request(url)
+        return resp.json() if resp else None
 
     def extract_datetime(self, timestamp):
         return datetime.fromisoformat(timestamp).astimezone(ZoneInfo("America/Sao_Paulo"))
@@ -145,12 +146,13 @@ class OpenEventExtractor:
         if events:
             return events
 
-        resp = await self._get_request(self.url)
-        content = resp["data"]
+        content = await self.get_json_content(self.url)
+        if content is None:
+            return events
 
         events = []
 
-        for event in content:
+        for event in content["data"]:
             events.append(
                 {
                     "title": event["attributes"]["name"],
