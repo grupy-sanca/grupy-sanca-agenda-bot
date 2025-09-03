@@ -1,18 +1,21 @@
 from telegram import Update
 from telegram.ext import ContextTypes
 
-from grupy_sanca_agenda_bot.events import (
+from grupy_sanca_agenda_bot import event_extractor
+from grupy_sanca_agenda_bot.constants import PeriodEnum
+from grupy_sanca_agenda_bot.settings import settings
+from grupy_sanca_agenda_bot.utils import (
+    check_is_period_valid,
+    delete_cache,
     filter_events,
     format_event_message,
-    load_events,
+    reply_message,
     slice_events,
 )
-from grupy_sanca_agenda_bot.settings import settings
-from grupy_sanca_agenda_bot.utils import PeriodEnum, check_is_period_valid, delete_cache, reply_message
 
 
 async def next(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    events = await load_events()
+    events = await event_extractor.load_events()
 
     if events:
         event = slice_events(events, 1)
@@ -23,7 +26,7 @@ async def next(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 
 async def agenda(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    events = await load_events()
+    events = await event_extractor.load_events()
 
     if events:
         if context.args and len(context.args) > 0:
