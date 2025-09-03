@@ -31,7 +31,7 @@ dev = [
 testpaths = ["tests"]
 env = [
     "TELEGRAM_BOT_TOKEN = 123",
-    "URL = https://events.com",
+    "URL = https://eventos.grupysanca.com.br",
     "GROUP_CHAT_ID = 123",
     "ADMINS = [123, 321]",
 ]
