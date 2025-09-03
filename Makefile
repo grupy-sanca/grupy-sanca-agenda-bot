@@ -16,6 +16,7 @@ lint: install
 
 .PHONY: format
 format: install
+	uv run ruff check . --fix
 	uv run ruff format .
 
 .PHONY: clean
