@@ -5,7 +5,6 @@ from pathlib import Path
 import pytz
 from telegram import Update
 from telegram.ext import Application
-from telegram.helpers import escape_markdown
 
 from grupy_sanca_agenda_bot.constants import PeriodEnum
 from grupy_sanca_agenda_bot.settings import settings
