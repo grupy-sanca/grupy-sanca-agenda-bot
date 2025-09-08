@@ -5,7 +5,6 @@ from pathlib import Path
 import pytz
 from telegram import Update
 from telegram.ext import Application
-from telegram.helpers import escape_markdown
 
 from grupy_sanca_agenda_bot.constants import PeriodEnum
 from grupy_sanca_agenda_bot.settings import settings
@@ -16,12 +15,11 @@ def check_is_period_valid(value: str) -> bool:
 
 
 async def send_message(message: str, application: Application) -> None:
-    message = escape_markdown(message, version=2)
     await application.bot.send_message(
         chat_id=settings.GROUP_CHAT_ID,
         message_thread_id=settings.GROUP_CHAT_TOPIC_ID,
         text=message,
-        parse_mode="MarkdownV2",
+        parse_mode="Markdown",
     )
 
 
