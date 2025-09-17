@@ -2,6 +2,7 @@ from grupy_sanca_agenda_bot.bot import bot
 
 
 def main():
+    raise Exception
     bot()
 
 

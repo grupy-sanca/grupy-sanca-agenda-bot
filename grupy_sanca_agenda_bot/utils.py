@@ -10,6 +10,8 @@ from grupy_sanca_agenda_bot.constants import PeriodEnum
 from grupy_sanca_agenda_bot.settings import settings
 
 
+
+
 def check_is_period_valid(value: str) -> bool:
     return value in PeriodEnum._value2member_map_
 
