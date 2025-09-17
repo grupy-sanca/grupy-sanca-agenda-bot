@@ -13,10 +13,5 @@ from grupy_sanca_agenda_bot.utils import check_is_period_valid
         ("test", False),
     ],
 )
-
-
-
-
-
 async def test_check_is_period_valid(period, response):
-    assert check_is_period_valid(period) is not response
+    assert check_is_period_valid(period) is response
