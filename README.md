@@ -36,6 +36,8 @@ Configure a variável de ambiente `GROUP_CHAT_TOPIC_ID` com o ID do tópico dese
 ```env
 # TOKEN do seu bot gerado pelo BotFather
 TELEGRAM_BOT_TOKEN=
+# Sistema de eventos a ser utilizado (Meetup ou Open Event)
+EVENT_EXTRACTOR=<meetup ou open_event>
 # URL para extrair os eventos (Meetup ou Open Event)
 URL=
 # ID do grupo no Telegram onde o bot mandará as mensagens agendadas
