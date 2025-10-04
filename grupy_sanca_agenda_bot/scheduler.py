@@ -15,6 +15,14 @@ def setup_scheduler(application, loop):
     scheduler = AsyncIOScheduler(timezone=pytz.timezone("America/Sao_Paulo"), event_loop=loop)
 
     scheduler.add_job(
+        send_monthly_events,
+        "cron",
+        day=1,
+        hour=9,
+        args=[application],
+    )
+
+    scheduler.add_job(
         send_weekly_events,
         "cron",
         day_of_week="mon",
@@ -38,6 +46,13 @@ def setup_scheduler(application, loop):
     )
 
     scheduler.start()
+
+
+async def send_monthly_events(application):
+    events = filter_events(await event_extractor.load_events(), period=PeriodEnum.mensal)
+    if events:
+        message = format_event_message(events, header="Eventos do Mês", description=False)
+        await send_message(message, application)
 
 
 async def send_weekly_events(application):
