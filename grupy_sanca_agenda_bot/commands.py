@@ -43,6 +43,7 @@ async def agenda(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                     "Valor inválido, escolha entre: mensal, semanal, hoje, ou passe um número inteiro positivo",  # noqa
                     update,
                 )
+                return
         else:
             events = filter_events(events, period=PeriodEnum.agenda)
             header = "Agenda"
