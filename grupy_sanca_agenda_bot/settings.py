@@ -4,6 +4,7 @@ from grupy_sanca_agenda_bot.constants import EventExtractorEnum
 
 
 class Settings(BaseSettings):
+    DB_FILE: str = "events.db"
     TELEGRAM_BOT_TOKEN: str
     URL: str
     EVENT_EXTRACTOR: EventExtractorEnum = EventExtractorEnum.open_event

@@ -6,7 +6,6 @@ from grupy_sanca_agenda_bot.constants import PeriodEnum
 from grupy_sanca_agenda_bot.settings import settings
 from grupy_sanca_agenda_bot.utils import (
     check_is_period_valid,
-    delete_cache,
     filter_events,
     format_event_message,
     reply_message,
@@ -56,7 +55,7 @@ async def agenda(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 async def force_update(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if settings.ADMINS and update.message.from_user.id in settings.ADMINS:
-        await delete_cache()
+        await event_extractor.load_events(use_cache=False)
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:

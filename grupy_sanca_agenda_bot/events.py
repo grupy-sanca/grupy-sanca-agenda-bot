@@ -7,8 +7,8 @@ from zoneinfo import ZoneInfo
 from bs4 import BeautifulSoup
 from httpx import AsyncClient, Timeout
 
+from grupy_sanca_agenda_bot.database import load_cache, save_cache
 from grupy_sanca_agenda_bot.settings import settings
-from grupy_sanca_agenda_bot.utils import load_cache, save_cache
 
 
 class Extractor:
@@ -78,8 +78,8 @@ class MeetupExtractor(Extractor):
         )
         return "\n".join([item.get_text() for item in description_elements])
 
-    async def load_events(self):
-        events = await load_cache()
+    async def load_events(self, use_cache=True):
+        events = load_cache() if use_cache else []
         if events:
             return events
 
@@ -97,6 +97,7 @@ class MeetupExtractor(Extractor):
 
             events.append(
                 {
+                    "identifier": link.split("/")[-1],
                     "title": self.extract_title(inner_soup),
                     "date_time": self.extract_datetime(inner_soup),
                     "location": self.extract_location(inner_soup),
@@ -105,7 +106,7 @@ class MeetupExtractor(Extractor):
                 }
             )
 
-        await save_cache(events)
+        save_cache(events)
         return events
 
 
@@ -144,8 +145,8 @@ class OpenEventExtractor(Extractor):
     def extract_link(self, identifier):
         return f"https://eventos.grupysanca.com.br/e/{identifier}"
 
-    async def load_events(self):
-        events = await load_cache()
+    async def load_events(self, use_cache=True):
+        events = load_cache() if use_cache else []
         if events:
             return events
 
@@ -158,6 +159,7 @@ class OpenEventExtractor(Extractor):
         for event in content["data"]:
             events.append(
                 {
+                    "identifier": event["attributes"]["identifier"],
                     "title": event["attributes"]["name"],
                     "date_time": self.extract_datetime(event["attributes"]["starts-at"]),
                     "location": self.extract_location(event["attributes"]["location-name"]),
@@ -167,5 +169,5 @@ class OpenEventExtractor(Extractor):
             )
         events.sort(key=lambda x: x["date_time"])
 
-        await save_cache(events)
+        save_cache(events)
         return events

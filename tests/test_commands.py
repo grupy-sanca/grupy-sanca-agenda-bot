@@ -6,30 +6,30 @@ from grupy_sanca_agenda_bot.commands import agenda, force_update, next
 from grupy_sanca_agenda_bot.settings import settings
 
 
-@mock.patch("grupy_sanca_agenda_bot.commands.delete_cache")
-async def test_force_update_no_admin(mock_delete_cache):
+@mock.patch("grupy_sanca_agenda_bot.commands.event_extractor.load_events")
+async def test_force_update_no_admin(mock_load_events):
     mock_update = mock.MagicMock()
     mock_update.message.from_user.id = 999
     await force_update(mock_update, mock.Mock())
-    mock_delete_cache.assert_not_called()
+    mock_load_events.assert_not_called()
 
 
-@mock.patch("grupy_sanca_agenda_bot.commands.delete_cache")
-async def test_force_update_is_admin(mock_delete_cache):
+@mock.patch("grupy_sanca_agenda_bot.commands.event_extractor.load_events")
+async def test_force_update_is_admin(mock_load_events):
     mock_update = mock.MagicMock()
     mock_update.message.from_user.id = settings.ADMINS[0]
     await force_update(mock_update, mock.Mock())
-    mock_delete_cache.assert_called_once_with()
+    mock_load_events.assert_called_once()
 
 
-@mock.patch("grupy_sanca_agenda_bot.commands.delete_cache")
+@mock.patch("grupy_sanca_agenda_bot.commands.event_extractor.load_events")
 @mock.patch("grupy_sanca_agenda_bot.commands.settings")
-async def test_force_update_empty_admin(mock_settings, mock_delete_cache):
+async def test_force_update_empty_admin(mock_settings, mock_load_events):
     mock_settings.ADMINS = None
     mock_update = mock.MagicMock()
     mock_update.message.from_user.id = settings.ADMINS[0]
     await force_update(mock_update, mock.Mock())
-    mock_delete_cache.assert_not_called()
+    mock_load_events.assert_not_called()
 
 
 @mock.patch("grupy_sanca_agenda_bot.commands.reply_message")

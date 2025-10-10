@@ -1,6 +1,4 @@
-import pickle
 from datetime import datetime, timedelta
-from pathlib import Path
 
 import pytz
 from telegram import Update
@@ -25,31 +23,6 @@ async def send_message(message: str, application: Application) -> None:
 
 async def reply_message(message: str, update: Update) -> None:
     await update.message.reply_text(message, parse_mode="Markdown")
-
-
-async def delete_cache():
-    try:
-        Path.unlink(Path("events"))
-    except Exception:
-        pass
-
-
-async def load_cache():
-    events = []
-    try:
-        with open("events", "rb") as fp:
-            events = pickle.load(fp)
-    except Exception:
-        return events
-    return events
-
-
-async def save_cache(events):
-    try:
-        with open("events", "wb") as fp:
-            pickle.dump(events, fp)
-    except Exception:
-        pass
 
 
 def filter_events(events, period=PeriodEnum.agenda):

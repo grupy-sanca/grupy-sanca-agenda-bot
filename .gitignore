@@ -162,4 +162,4 @@ cython_debug/
 #.idea/
 
 # bot
-events
+events.db
