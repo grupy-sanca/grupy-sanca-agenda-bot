@@ -18,18 +18,18 @@ async def test_send_monthly_events_with_events(mock_load_events, mock_send_messa
     await send_monthly_events(mock_application)
     message = (
         "*📅 Eventos do Mês:*\n\n"
-        f"*{events[0]['title']}*\n\n"
-        f"*🕒 Data e Hora:* {events[0]['date_time'].strftime('%d/%m/%Y às %Hh%M')}\n"
-        f"*📍 Local:* {events[0]['location']}\n\n"
-        f"🔗 [Clique aqui para se inscrever no evento]({events[0]['link']})\n\n"
-        f"*{events[1]['title']}*\n\n"
-        f"*🕒 Data e Hora:* {events[1]['date_time'].strftime('%d/%m/%Y às %Hh%M')}\n"
-        f"*📍 Local:* {events[1]['location']}\n\n"
-        f"🔗 [Clique aqui para se inscrever no evento]({events[1]['link']})\n\n"
-        f"*{events[2]['title']}*\n\n"
-        f"*🕒 Data e Hora:* {events[2]['date_time'].strftime('%d/%m/%Y às %Hh%M')}\n"
-        f"*📍 Local:* {events[2]['location']}\n\n"
-        f"🔗 [Clique aqui para se inscrever no evento]({events[2]['link']})\n\n"
+        f"*{events[0].title}*\n\n"
+        f"*🕒 Data e Hora:* {events[0].date_time.strftime('%d/%m/%Y às %Hh%M')}\n"
+        f"*📍 Local:* {events[0].location}\n\n"
+        f"🔗 [Clique aqui para se inscrever no evento]({events[0].link})\n\n"
+        f"*{events[1].title}*\n\n"
+        f"*🕒 Data e Hora:* {events[1].date_time.strftime('%d/%m/%Y às %Hh%M')}\n"
+        f"*📍 Local:* {events[1].location}\n\n"
+        f"🔗 [Clique aqui para se inscrever no evento]({events[1].link})\n\n"
+        f"*{events[2].title}*\n\n"
+        f"*🕒 Data e Hora:* {events[2].date_time.strftime('%d/%m/%Y às %Hh%M')}\n"
+        f"*📍 Local:* {events[2].location}\n\n"
+        f"🔗 [Clique aqui para se inscrever no evento]({events[2].link})\n\n"
     )
     mock_send_message.assert_called_once_with(message, mock_application)
 
@@ -53,14 +53,14 @@ async def test_send_weekly_events_with_events(mock_load_events, mock_send_messag
     await send_weekly_events(mock_application)
     message = (
         "*📅 Eventos da Semana:*\n\n"
-        f"*{events[1]['title']}*\n\n"
-        f"*🕒 Data e Hora:* {events[1]['date_time'].strftime('%d/%m/%Y às %Hh%M')}\n"
-        f"*📍 Local:* {events[1]['location']}\n\n"
-        f"🔗 [Clique aqui para se inscrever no evento]({events[1]['link']})\n\n"
-        f"*{events[2]['title']}*\n\n"
-        f"*🕒 Data e Hora:* {events[2]['date_time'].strftime('%d/%m/%Y às %Hh%M')}\n"
-        f"*📍 Local:* {events[2]['location']}\n\n"
-        f"🔗 [Clique aqui para se inscrever no evento]({events[2]['link']})\n\n"
+        f"*{events[1].title}*\n\n"
+        f"*🕒 Data e Hora:* {events[1].date_time.strftime('%d/%m/%Y às %Hh%M')}\n"
+        f"*📍 Local:* {events[1].location}\n\n"
+        f"🔗 [Clique aqui para se inscrever no evento]({events[1].link})\n\n"
+        f"*{events[2].title}*\n\n"
+        f"*🕒 Data e Hora:* {events[2].date_time.strftime('%d/%m/%Y às %Hh%M')}\n"
+        f"*📍 Local:* {events[2].location}\n\n"
+        f"🔗 [Clique aqui para se inscrever no evento]({events[2].link})\n\n"
     )
     mock_send_message.assert_called_once_with(message, mock_application)
 
@@ -84,11 +84,11 @@ async def test_send_today_events_with_events(mock_load_events, mock_send_message
     await send_today_events(mock_application)
     message = (
         "*📅 Eventos de Hoje:*\n\n"
-        f"*{events[1]['title']}*\n\n"
-        f"*🕒 Data e Hora:* {events[1]['date_time'].strftime('%d/%m/%Y às %Hh%M')}\n"
-        f"*📍 Local:* {events[1]['location']}\n\n"
-        f"*📝 Descrição:*\n{events[1]['description']}\n\n"
-        f"🔗 [Clique aqui para se inscrever no evento]({events[1]['link']})\n\n"
+        f"*{events[1].title}*\n\n"
+        f"*🕒 Data e Hora:* {events[1].date_time.strftime('%d/%m/%Y às %Hh%M')}\n"
+        f"*📍 Local:* {events[1].location}\n\n"
+        f"*📝 Descrição:*\n{events[1].description}\n\n"
+        f"🔗 [Clique aqui para se inscrever no evento]({events[1].link})\n\n"
     )
     mock_send_message.assert_called_once_with(message, mock_application)
 

@@ -11,10 +11,12 @@ dependencies = [
     "APScheduler>=3.11.0",
     "beautifulsoup4>=4.12.3",
     "httpx>=0.28.1",
+    "pydantic>=2.10.3",
     "pydantic-settings>=2.6.1",
     "python-dotenv>=1.0.1",
     "python-telegram-bot>=21.9",
     "pytz>=2024.2",
+    "sqlalchemy>=2.0.44",
 ]
 
 [dependency-groups]

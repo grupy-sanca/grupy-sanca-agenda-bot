@@ -1,80 +1,72 @@
-import sqlite3
 from datetime import datetime
-from typing import Any, Dict, List
+from pathlib import Path
+from typing import List
 
+from sqlalchemy import (
+    create_engine,
+    select,
+)
+from sqlalchemy.orm import (
+    sessionmaker,
+)
+
+from grupy_sanca_agenda_bot.models import Base, EventModel
+from grupy_sanca_agenda_bot.schemas import Event
 from grupy_sanca_agenda_bot.settings import settings
+
+DB_PATH = Path(settings.DB_FILE)
+engine = create_engine(f"sqlite:///{DB_PATH}", echo=False, future=True)
+SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
 
 
 def init_db():
-    with sqlite3.connect(settings.DB_FILE) as conn:
-        conn.execute("""
-            CREATE TABLE IF NOT EXISTS events (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                identifier STRING UNIQUE,
-                title TEXT,
-                date_time TEXT,
-                location TEXT,
-                description TEXT,
-                link TEXT
-            )
-        """)
-        conn.commit()
+    """Create all tables."""
+    Base.metadata.create_all(bind=engine)
 
 
-def save_cache(events: List[Dict[str, Any]]):
-    with sqlite3.connect(settings.DB_FILE) as conn:
-        existing_ids = {row[0] for row in conn.execute("SELECT identifier FROM events").fetchall()}
-        events = [e for e in events if e["identifier"] not in existing_ids]
-        if not events:
+def get_session():
+    """Context-managed session."""
+    with SessionLocal() as session:
+        yield session
+
+
+def save_cache(events: List[Event]):
+    """Save new events to cache, ignoring duplicates."""
+    if not events:
+        return
+
+    with SessionLocal() as session:
+        existing_ids = set(session.scalars(select(EventModel.identifier)))
+
+        new_events = [event for event in events if event.identifier not in existing_ids]
+        if not new_events:
             return
 
-        conn.executemany(
-            """
-            INSERT INTO events (identifier, title, date_time, location, description, link)
-            VALUES (?, ?, ?, ?, ?, ?)
-        """,
-            [
-                (
-                    e["identifier"],
-                    e["title"],
-                    e["date_time"].isoformat() if isinstance(e["date_time"], datetime) else e["date_time"],
-                    e["location"],
-                    e["description"],
-                    e["link"],
-                )
-                for e in events
-            ],
-        )
-        conn.commit()
+        session.add_all([
+            EventModel(**event.model_dump(exclude={"id"}))
+            for event in new_events
+        ])
+        session.commit()
 
 
-def load_cache() -> List[Dict[str, Any]]:
-    with sqlite3.connect(settings.DB_FILE) as conn:
-        cursor = conn.execute(
-            """
-            SELECT identifier, title, date_time, location, description, link
-            FROM events
-            WHERE date_time >= ?
-            ORDER BY date_time ASC
-        """,
-            (datetime.now().isoformat(),),
-        )
+def load_cache() -> List[Event]:
+    """Load future events sorted by date."""
+    with SessionLocal() as session:
+        events = session.scalars(
+            select(EventModel)
+            .where(EventModel.date_time >= datetime.now())
+            .order_by(EventModel.date_time.asc())
+        ).all()
 
-        rows = cursor.fetchall()
         return [
-            {
-                "identifier": row[0],
-                "title": row[1],
-                "date_time": datetime.fromisoformat(row[2]),
-                "location": row[3],
-                "description": row[4],
-                "link": row[5],
-            }
-            for row in rows
+            Event(
+                id=event.id,
+                identifier=event.identifier,
+                title=event.title,
+                date_time=event.date_time,
+                location=event.location,
+                description=event.description,
+                link=event.link,
+            )
+            for event in events
         ]
-
-
-def delete_cache():
-    with sqlite3.connect(settings.DB_FILE) as conn:
-        conn.execute("DELETE FROM events")
-        conn.commit()
