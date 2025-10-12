@@ -4,7 +4,7 @@ import tempfile
 from datetime import datetime, timedelta
 
 import pytest
-from sqlalchemy import create_engine, func, select, inspect
+from sqlalchemy import create_engine, func, inspect, select
 from sqlalchemy.orm import sessionmaker
 
 from grupy_sanca_agenda_bot import database
@@ -85,7 +85,9 @@ def test_save_cache_skips_duplicates(temp_db):
     save_cache([event])  # Try to insert duplicate
 
     with session_local() as session:
-        count = session.scalar(select(func.count()).select_from(EventModel).where(EventModel.identifier == "duplicate"))
+        count = session.scalar(
+            select(func.count()).select_from(EventModel).where(EventModel.identifier == "duplicate")
+        )
 
     assert count == 1
 

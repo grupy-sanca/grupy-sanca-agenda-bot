@@ -84,7 +84,7 @@ class TestMeetupExtractor:
         keys = ["id", "identifier", "title", "date_time", "location", "description", "link"]
         for event in events:
             assert all(hasattr(event, key) for key in keys)
-        
+
         assert len(respx_mock.calls) == 3
 
         mock_save_cache.assert_called_once_with(events)
@@ -152,7 +152,7 @@ class TestOpenEventExtractor:
         keys = ["id", "identifier", "title", "date_time", "description", "location", "link"]
         for event in events:
             assert all(hasattr(event, key) for key in keys)
-        
+
         assert len(respx_mock.calls) == 1
 
         mock_save_cache.assert_called_once_with(events)
@@ -179,7 +179,7 @@ class TestOpenEventExtractor:
         keys = ["id", "identifier", "title", "date_time", "description", "location", "link"]
         for event in events:
             assert all(hasattr(event, key) for key in keys)
-            
+
         assert len(respx_mock.calls) == 1
 
         mock_save_cache.assert_called_once_with(events)

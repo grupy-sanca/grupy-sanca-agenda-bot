@@ -42,10 +42,7 @@ def save_cache(events: List[Event]):
         if not new_events:
             return
 
-        session.add_all([
-            EventModel(**event.model_dump(exclude={"id"}))
-            for event in new_events
-        ])
+        session.add_all([EventModel(**event.model_dump(exclude={"id"})) for event in new_events])
         session.commit()
 
 
