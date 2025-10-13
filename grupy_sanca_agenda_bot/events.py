@@ -7,8 +7,9 @@ from zoneinfo import ZoneInfo
 from bs4 import BeautifulSoup
 from httpx import AsyncClient, Timeout
 
+from grupy_sanca_agenda_bot.database import load_cache, save_cache
+from grupy_sanca_agenda_bot.schemas import Event
 from grupy_sanca_agenda_bot.settings import settings
-from grupy_sanca_agenda_bot.utils import load_cache, save_cache
 
 
 class Extractor:
@@ -78,8 +79,8 @@ class MeetupExtractor(Extractor):
         )
         return "\n".join([item.get_text() for item in description_elements])
 
-    async def load_events(self):
-        events = await load_cache()
+    async def load_events(self, use_cache=True) -> list[Event]:
+        events = load_cache() if use_cache else []
         if events:
             return events
 
@@ -96,16 +97,18 @@ class MeetupExtractor(Extractor):
             inner_soup = BeautifulSoup(event_content, "html.parser")
 
             events.append(
-                {
-                    "title": self.extract_title(inner_soup),
-                    "date_time": self.extract_datetime(inner_soup),
-                    "location": self.extract_location(inner_soup),
-                    "description": self.extract_description(inner_soup),
-                    "link": link,
-                }
+                Event(
+                    id=None,
+                    identifier=link.split("/")[-1],
+                    title=self.extract_title(inner_soup),
+                    date_time=self.extract_datetime(inner_soup),
+                    location=self.extract_location(inner_soup),
+                    description=self.extract_description(inner_soup),
+                    link=link,
+                )
             )
 
-        await save_cache(events)
+        save_cache(events)
         return events
 
 
@@ -127,7 +130,6 @@ class OpenEventExtractor(Extractor):
         return datetime.fromisoformat(timestamp).astimezone(ZoneInfo("America/Sao_Paulo"))
 
     def extract_location(self, raw_location):
-        print(raw_location)
         return raw_location if raw_location else "Evento Online"
 
     def extract_description(self, raw_description):
@@ -144,8 +146,8 @@ class OpenEventExtractor(Extractor):
     def extract_link(self, identifier):
         return f"https://eventos.grupysanca.com.br/e/{identifier}"
 
-    async def load_events(self):
-        events = await load_cache()
+    async def load_events(self, use_cache=True) -> list[Event]:
+        events = load_cache() if use_cache else []
         if events:
             return events
 
@@ -157,15 +159,17 @@ class OpenEventExtractor(Extractor):
 
         for event in content["data"]:
             events.append(
-                {
-                    "title": event["attributes"]["name"],
-                    "date_time": self.extract_datetime(event["attributes"]["starts-at"]),
-                    "location": self.extract_location(event["attributes"]["location-name"]),
-                    "description": self.extract_description(event["attributes"]["description"]),
-                    "link": self.extract_link(event["attributes"]["identifier"]),
-                }
+                Event(
+                    id=None,
+                    identifier=event["attributes"]["identifier"],
+                    title=event["attributes"]["name"],
+                    date_time=self.extract_datetime(event["attributes"]["starts-at"]),
+                    location=self.extract_location(event["attributes"]["location-name"]),
+                    description=self.extract_description(event["attributes"]["description"]),
+                    link=self.extract_link(event["attributes"]["identifier"]),
+                )
             )
-        events.sort(key=lambda x: x["date_time"])
+        events.sort(key=lambda x: x.date_time)
 
-        await save_cache(events)
+        save_cache(events)
         return events

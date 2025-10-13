@@ -4,6 +4,8 @@ from zoneinfo import ZoneInfo
 from bs4 import BeautifulSoup
 from pytest import fixture
 
+from grupy_sanca_agenda_bot.schemas import Event
+
 
 @fixture
 def meetup_homepage_soup():
@@ -92,32 +94,48 @@ def open_event_api_response_unsorted():
 @fixture
 def events():
     return [
-        {
-            "title": "Event 1",
-            "date_time": datetime(2024, 7, 10, 20, 0, 0).astimezone(ZoneInfo("America/Sao_Paulo")),
-            "location": "Location 1",
-            "description": "Description 1",
-            "link": "https://example.com/events/1",
-        },
-        {
-            "title": "Event 2",
-            "date_time": datetime(2024, 7, 15, 15, 0, 0).astimezone(ZoneInfo("America/Sao_Paulo")),
-            "location": "Location 2",
-            "description": "Description 2",
-            "link": "https://example.com/events/2",
-        },
-        {
-            "title": "Event 3",
-            "date_time": datetime(2024, 7, 20, 18, 0, 0).astimezone(ZoneInfo("America/Sao_Paulo")),
-            "location": "Location 3",
-            "description": "Description 3",
-            "link": "https://example.com/events/3",
-        },
-        {
-            "title": "Event 4",
-            "date_time": datetime(2024, 8, 5, 19, 0, 0).astimezone(ZoneInfo("America/Sao_Paulo")),
-            "location": "Location 4",
-            "description": "Description 4",
-            "link": "https://example.com/events/4",
-        },
+        Event(
+            id=None,
+            identifier="1",
+            title="Event 1",
+            date_time=datetime.fromisoformat("2024-07-10T20:00:00-03:00").replace(
+                tzinfo=ZoneInfo("America/Sao_Paulo")
+            ),
+            location="Location 1",
+            description="Description 1",
+            link="https://example.com/events/1",
+        ),
+        Event(
+            id=None,
+            identifier="2",
+            title="Event 2",
+            date_time=datetime.fromisoformat("2024-07-15T15:00:00-03:00").replace(
+                tzinfo=ZoneInfo("America/Sao_Paulo")
+            ),
+            location="Location 2",
+            description="Description 2",
+            link="https://example.com/events/2",
+        ),
+        Event(
+            id=None,
+            identifier="3",
+            title="Event 3",
+            date_time=datetime.fromisoformat("2024-07-20T18:00:00-03:00").replace(
+                tzinfo=ZoneInfo("America/Sao_Paulo")
+            ),
+            location="Location 3",
+            description="Description 3",
+            link="https://example.com/events/3",
+        ),
+        Event(
+            id=None,
+            identifier="4",
+            title="Event 4",
+            date_time=datetime.fromisoformat("2024-08-05T19:00:00-03:00").replace(
+                tzinfo=ZoneInfo("America/Sao_Paulo")
+            ),
+            location="Location 4",
+            description="Description 4",
+            link="https://example.com/events/4",
+        ),
     ]

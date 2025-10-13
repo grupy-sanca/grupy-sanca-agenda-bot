@@ -4,6 +4,8 @@ from unittest import mock
 import pytest
 from freezegun import freeze_time
 
+from grupy_sanca_agenda_bot.constants import PeriodEnum
+from grupy_sanca_agenda_bot.schemas import Event
 from grupy_sanca_agenda_bot.settings import settings
 from grupy_sanca_agenda_bot.utils import (
     check_is_period_valid,
@@ -70,38 +72,109 @@ async def test_reply_message():
 @freeze_time("2025-10-10 08:00:00", tz_offset=-3)
 def test_filter_events_mensal():
     events = [
-        {"date_time": datetime.fromisoformat("2025-10-10T10:00:00-03:00"), "title": "Evento 1"},
-        {"date_time": datetime.fromisoformat("2025-10-20T10:00:00-03:00"), "title": "Evento 2"},
-        {"date_time": datetime.fromisoformat("2025-07-05T10:00:00-03:00"), "title": "Evento 3"},
+        Event(
+            id=None,
+            identifier="1",
+            title="Evento 1",
+            date_time=datetime.fromisoformat("2025-10-10T10:00:00-03:00"),
+            description="Descrição1",
+            location="Local 1",
+            link="http://example.com/event1",
+        ),
+        Event(
+            id=None,
+            identifier="2",
+            title="Evento 2",
+            date_time=datetime.fromisoformat("2025-10-20T10:00:00-03:00"),
+            description="Descrição2",
+            location="Local 2",
+            link="http://example.com/event2",
+        ),
+        Event(
+            id=None,
+            identifier="3",
+            title="Evento 3",
+            date_time=datetime.fromisoformat("2025-07-05T10:00:00-03:00"),
+            description="Descrição3",
+            location="Local 3",
+            link="http://example.com/event3",
+        ),
     ]
-    filtered = filter_events(events, period="mensal")
+    filtered = filter_events(events, period=PeriodEnum.mensal)
     assert len(filtered) == 2
-    assert all(event["title"] in ["Evento 1", "Evento 2"] for event in filtered)
+    assert all(event.title in ["Evento 1", "Evento 2"] for event in filtered)
 
 
 @freeze_time("2025-10-10 08:00:00", tz_offset=-3)
 def test_filter_events_semanal():
     events = [
-        {"date_time": datetime.fromisoformat("2025-10-10T10:00:00-03:00"), "title": "Evento 1"},
-        {"date_time": datetime.fromisoformat("2025-10-11T10:00:00-03:00"), "title": "Evento 2"},
-        {"date_time": datetime.fromisoformat("2025-10-20T10:00:00-03:00"), "title": "Evento 3"},
+        Event(
+            id=None,
+            identifier="1",
+            title="Evento 1",
+            date_time=datetime.fromisoformat("2025-10-10T10:00:00-03:00"),
+            description="Descrição1",
+            location="Local 1",
+            link="http://example.com/event1",
+        ),
+        Event(
+            id=None,
+            identifier="2",
+            title="Evento 2",
+            date_time=datetime.fromisoformat("2025-10-11T10:00:00-03:00"),
+            description="Descrição2",
+            location="Local 2",
+            link="http://example.com/event2",
+        ),
+        Event(
+            id=None,
+            identifier="3",
+            title="Evento 3",
+            date_time=datetime.fromisoformat("2025-10-20T10:00:00-03:00"),
+            description="Descrição3",
+            location="Local 3",
+            link="http://example.com/event3",
+        ),
     ]
-    filtered = filter_events(events, period="semanal")
+    filtered = filter_events(events, period=PeriodEnum.semanal)
     assert len(filtered) == 2
-    assert all(event["title"] in ["Evento 1", "Evento 2"] for event in filtered)
+    assert all(event.title in ["Evento 1", "Evento 2"] for event in filtered)
 
 
 @freeze_time("2025-10-10 08:00:00", tz_offset=-3)
 def test_filter_events_hoje():
-    print(datetime.now())
     events = [
-        {"date_time": datetime.fromisoformat("2025-10-10T10:00:00-03:00"), "title": "Evento 1"},
-        {"date_time": datetime.fromisoformat("2025-10-11T15:00:00-03:00"), "title": "Evento 2"},
-        {"date_time": datetime.fromisoformat("2025-10-12T10:00:00-03:00"), "title": "Evento 3"},
+        Event(
+            id=None,
+            identifier="1",
+            title="Evento 1",
+            date_time=datetime.fromisoformat("2025-10-10T10:00:00-03:00"),
+            description="Descrição1",
+            location="Local 1",
+            link="http://example.com/event1",
+        ),
+        Event(
+            id=None,
+            identifier="2",
+            title="Evento 2",
+            date_time=datetime.fromisoformat("2025-10-11T10:00:00-03:00"),
+            description="Descrição2",
+            location="Local 2",
+            link="http://example.com/event2",
+        ),
+        Event(
+            id=None,
+            identifier="3",
+            title="Evento 3",
+            date_time=datetime.fromisoformat("2025-10-12T10:00:00-03:00"),
+            description="Descrição3",
+            location="Local 3",
+            link="http://example.com/event3",
+        ),
     ]
-    filtered = filter_events(events, period="hoje")
+    filtered = filter_events(events, period=PeriodEnum.hoje)
     assert len(filtered) == 1
-    assert filtered[0]["title"] == "Evento 1"
+    assert filtered[0].title == "Evento 1"
 
 
 @pytest.mark.parametrize(
@@ -128,13 +201,15 @@ def test_slice_events(events, slice_size):
 
 def test_format_event_message_with_description():
     events = [
-        {
-            "title": "Evento 1",
-            "date_time": datetime.fromisoformat("2025-10-10T10:00:00-03:00"),
-            "location": "Local 1",
-            "description": "Descrição1",
-            "link": "http://example.com/event1",
-        },
+        Event(
+            id=None,
+            identifier="1",
+            title="Evento 1",
+            date_time=datetime.fromisoformat("2025-10-10T10:00:00-03:00"),
+            description="Descrição1",
+            location="Local 1",
+            link="http://example.com/event1",
+        ),
     ]
     message = format_event_message(events, header="Próximo Evento", description=True)
     assert message == (
@@ -149,20 +224,24 @@ def test_format_event_message_with_description():
 
 def test_format_event_message_without_description():
     events = [
-        {
-            "title": "Evento 1",
-            "date_time": datetime.fromisoformat("2025-10-10T10:00:00-03:00"),
-            "location": "Local 1",
-            "description": "Descrição1",
-            "link": "http://example.com/event1",
-        },
-        {
-            "title": "Evento 2",
-            "date_time": datetime.fromisoformat("2025-10-11T15:00:00-03:00"),
-            "location": "Local 2",
-            "description": "Descrição2",
-            "link": "http://example.com/event2",
-        },
+        Event(
+            id=None,
+            identifier="1",
+            title="Evento 1",
+            date_time=datetime.fromisoformat("2025-10-10T10:00:00-03:00"),
+            description="Descrição1",
+            location="Local 1",
+            link="http://example.com/event1",
+        ),
+        Event(
+            id=None,
+            identifier="2",
+            title="Evento 2",
+            date_time=datetime.fromisoformat("2025-10-11T15:00:00-03:00"),
+            description="Descrição2",
+            location="Local 2",
+            link="http://example.com/event2",
+        ),
     ]
     message = format_event_message(events, header="Agenda Mensal", description=False)
     assert message == (
