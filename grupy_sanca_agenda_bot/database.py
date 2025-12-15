@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import UTC
 from pathlib import Path
 from typing import List
 
@@ -41,7 +41,8 @@ def save_cache(events: List[Event]):
         new_events = [event for event in events if event.identifier not in existing_ids]
         if not new_events:
             return
-
+        for event in new_events:
+            event.date_time = event.date_time.replace(tzinfo=UTC)
         session.add_all([EventModel(**event.model_dump(exclude={"id"})) for event in new_events])
         session.commit()
 
@@ -49,18 +50,14 @@ def save_cache(events: List[Event]):
 def load_cache() -> List[Event]:
     """Load future events sorted by date."""
     with SessionLocal() as session:
-        events = session.scalars(
-            select(EventModel)
-            .where(EventModel.date_time >= datetime.now())
-            .order_by(EventModel.date_time.asc())
-        ).all()
+        events = session.scalars(select(EventModel).order_by(EventModel.date_time.asc())).all()
 
         return [
             Event(
                 id=event.id,
                 identifier=event.identifier,
                 title=event.title,
-                date_time=event.date_time,
+                date_time=event.date_time.replace(tzinfo=UTC),
                 location=event.location,
                 description=event.description,
                 link=event.link,

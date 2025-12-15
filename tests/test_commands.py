@@ -38,10 +38,13 @@ async def test_next_with_events(mock_load_events, mock_reply_message, events):
     mock_load_events.return_value = events
     mock_update = mock.MagicMock()
     mock_context = mock.Mock()
+
+    formatted_date_time = "10/07/2024 às 20h00"
+
     message = (
         "*📅 Próximo Evento:*\n\n"
         f"*{events[0].title}*\n\n"
-        f"*🕒 Data e Hora:* {events[0].date_time.strftime('%d/%m/%Y às %Hh%M')}\n"
+        f"*🕒 Data e Hora:* {formatted_date_time}\n"
         f"*📍 Local:* {events[0].location}\n\n"
         f"*📝 Descrição:*\n{events[0].description}\n\n"
         f"🔗 [Clique aqui para se inscrever no evento]({events[0].link})\n\n"
