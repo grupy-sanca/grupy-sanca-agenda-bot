@@ -8,7 +8,7 @@ from sqlalchemy import create_engine, func, inspect, select
 from sqlalchemy.orm import sessionmaker
 
 from grupy_sanca_agenda_bot import database
-from grupy_sanca_agenda_bot.database import Base, EventModel, init_db, load_cache, save_cache
+from grupy_sanca_agenda_bot.database import Base, EventModel, init_db, load_cache, save_cache, update_cache
 from grupy_sanca_agenda_bot.schemas import Event
 
 
@@ -90,6 +90,60 @@ def test_save_cache_skips_duplicates(temp_db):
         )
 
     assert count == 1
+
+
+def test_update_cache_updates_existing_event(temp_db):
+    session_local = temp_db
+
+    original = Event(
+        identifier="update-me",
+        title="Original Title",
+        date_time=datetime.now(),
+        location="Old Location",
+        description="Old description",
+        link="http://example.com/old",
+    )
+    save_cache([original])
+
+    updated = Event(
+        identifier="update-me",
+        title="Updated Title",
+        date_time=datetime.now(),
+        location="New Location",
+        description="New description",
+        link="http://example.com/new",
+    )
+    update_cache([updated])
+
+    with session_local() as session:
+        results = session.scalars(select(EventModel).where(EventModel.identifier == "update-me")).all()
+
+    assert len(results) == 1
+    row = results[0]
+    assert row.title == "Updated Title"
+    assert row.location == "New Location"
+    assert row.description == "New description"
+    assert row.link == "http://example.com/new"
+
+
+def test_update_cache_inserts_new_events(temp_db):
+    session_local = temp_db
+
+    event = Event(
+        identifier="brand-new",
+        title="New Event",
+        date_time=datetime.now(),
+        location="Somewhere",
+        description="A description",
+        link="http://example.com",
+    )
+    update_cache([event])
+
+    with session_local() as session:
+        results = session.scalars(select(EventModel).where(EventModel.identifier == "brand-new")).all()
+
+    assert len(results) == 1
+    assert results[0].title == "New Event"
 
 
 def test_load_cache_returns_future_events(temp_db):

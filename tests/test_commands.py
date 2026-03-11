@@ -14,12 +14,19 @@ async def test_force_update_no_admin(mock_load_events):
     mock_load_events.assert_not_called()
 
 
+@mock.patch("grupy_sanca_agenda_bot.commands.update_cache")
+@mock.patch("grupy_sanca_agenda_bot.commands.reply_message")
 @mock.patch("grupy_sanca_agenda_bot.commands.event_extractor.load_events")
-async def test_force_update_is_admin(mock_load_events):
+async def test_force_update_is_admin(mock_load_events, mock_reply_message, mock_update_cache, events):
+    mock_load_events.return_value = events
     mock_update = mock.MagicMock()
     mock_update.message.from_user.id = settings.ADMINS[0]
-    await force_update(mock_update, mock.Mock())
-    mock_load_events.assert_called_once()
+    mock_context = mock.Mock()
+    mock_context.args = ["2"]
+    await force_update(mock_update, mock_context)
+    mock_load_events.assert_called_once_with(use_cache=False, save=False)
+    mock_update_cache.assert_called_once()
+    mock_reply_message.assert_called_once()
 
 
 @mock.patch("grupy_sanca_agenda_bot.commands.event_extractor.load_events")
@@ -30,6 +37,30 @@ async def test_force_update_empty_admin(mock_settings, mock_load_events):
     mock_update.message.from_user.id = settings.ADMINS[0]
     await force_update(mock_update, mock.Mock())
     mock_load_events.assert_not_called()
+
+
+@mock.patch("grupy_sanca_agenda_bot.commands.reply_message")
+@mock.patch("grupy_sanca_agenda_bot.commands.event_extractor.load_events")
+async def test_force_update_missing_arg(mock_load_events, mock_reply_message):
+    mock_update = mock.MagicMock()
+    mock_update.message.from_user.id = settings.ADMINS[0]
+    mock_context = mock.Mock()
+    mock_context.args = []
+    await force_update(mock_update, mock_context)
+    mock_load_events.assert_not_called()
+    mock_reply_message.assert_called_once()
+
+
+@mock.patch("grupy_sanca_agenda_bot.commands.reply_message")
+@mock.patch("grupy_sanca_agenda_bot.commands.event_extractor.load_events")
+async def test_force_update_invalid_arg(mock_load_events, mock_reply_message):
+    mock_update = mock.MagicMock()
+    mock_update.message.from_user.id = settings.ADMINS[0]
+    mock_context = mock.Mock()
+    mock_context.args = ["abc"]
+    await force_update(mock_update, mock_context)
+    mock_load_events.assert_not_called()
+    mock_reply_message.assert_called_once()
 
 
 @mock.patch("grupy_sanca_agenda_bot.commands.reply_message")

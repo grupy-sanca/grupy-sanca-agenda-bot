@@ -78,7 +78,7 @@ class MeetupExtractor(Extractor):
         )
         return "\n".join([item.get_text() for item in description_elements])
 
-    async def load_events(self, use_cache=True) -> list[Event]:
+    async def load_events(self, use_cache=True, save=True) -> list[Event]:
         events = load_cache() if use_cache else []
         if events:
             return events
@@ -107,7 +107,8 @@ class MeetupExtractor(Extractor):
                 )
             )
 
-        save_cache(events)
+        if save:
+            save_cache(events)
         return events
 
 
@@ -145,7 +146,7 @@ class OpenEventExtractor(Extractor):
     def extract_link(self, identifier):
         return f"https://eventos.grupysanca.com.br/e/{identifier}"
 
-    async def load_events(self, use_cache=True) -> list[Event]:
+    async def load_events(self, use_cache=True, save=True) -> list[Event]:
         events = load_cache() if use_cache else []
         if events:
             return events
@@ -170,5 +171,6 @@ class OpenEventExtractor(Extractor):
             )
         events.sort(key=lambda x: x.date_time)
 
-        save_cache(events)
+        if save:
+            save_cache(events)
         return events
