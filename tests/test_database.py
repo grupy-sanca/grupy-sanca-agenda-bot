@@ -116,9 +116,7 @@ def test_update_cache_updates_existing_event(temp_db):
     update_cache([updated])
 
     with session_local() as session:
-        results = session.scalars(
-            select(EventModel).where(EventModel.identifier == "update-me")
-        ).all()
+        results = session.scalars(select(EventModel).where(EventModel.identifier == "update-me")).all()
 
     assert len(results) == 1
     row = results[0]
@@ -142,9 +140,7 @@ def test_update_cache_inserts_new_events(temp_db):
     update_cache([event])
 
     with session_local() as session:
-        results = session.scalars(
-            select(EventModel).where(EventModel.identifier == "brand-new")
-        ).all()
+        results = session.scalars(select(EventModel).where(EventModel.identifier == "brand-new")).all()
 
     assert len(results) == 1
     assert results[0].title == "New Event"

@@ -7,7 +7,7 @@ from zoneinfo import ZoneInfo
 from bs4 import BeautifulSoup
 from httpx import AsyncClient, Timeout
 
-from grupy_sanca_agenda_bot.database import load_cache, save_cache, update_cache
+from grupy_sanca_agenda_bot.database import load_cache, save_cache
 from grupy_sanca_agenda_bot.schemas import Event
 from grupy_sanca_agenda_bot.settings import settings
 
