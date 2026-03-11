@@ -14,7 +14,7 @@ class Settings(BaseSettings):
     GROUP_CHAT_TOPIC_ID: str | None = None
     ADMINS: list[int] | None = None
     TIMEOUT_SECONDS: int | None = 60
-    model_config = SettingsConfigDict(env_file=".env")
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
 
 settings = Settings()

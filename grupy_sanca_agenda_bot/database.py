@@ -6,6 +6,7 @@ from sqlalchemy import (
     create_engine,
     select,
 )
+from sqlalchemy.dialects.sqlite import insert as sqlite_insert
 from sqlalchemy.orm import (
     sessionmaker,
 )
@@ -43,6 +44,28 @@ def save_cache(events: List[Event]):
             return
 
         session.add_all([EventModel(**event.model_dump(exclude={"id"})) for event in new_events])
+        session.commit()
+
+
+def update_cache(events: List[Event]):
+    """Upsert events — insert new ones and update existing ones by identifier."""
+    if not events:
+        return
+
+    with SessionLocal() as session:
+        for event in events:
+            stmt = (
+                sqlite_insert(EventModel)
+                .values(**event.model_dump(exclude={"id"}))
+                .on_conflict_do_update(
+                    index_elements=["identifier"],
+                    set_={
+                        col: getattr(sqlite_insert(EventModel).excluded, col)
+                        for col in ("title", "date_time", "location", "description", "link")
+                    },
+                )
+            )
+            session.execute(stmt)
         session.commit()
 
 
