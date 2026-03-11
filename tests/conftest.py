@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 from pytest import fixture
 
 from grupy_sanca_agenda_bot.schemas import Event
+from grupy_sanca_agenda_bot.settings import settings
 
 
 @fixture
@@ -99,7 +100,7 @@ def events():
             identifier="1",
             title="Event 1",
             date_time=datetime.fromisoformat("2024-07-10T20:00:00-03:00").replace(
-                tzinfo=ZoneInfo("America/Sao_Paulo")
+                tzinfo=ZoneInfo(settings.TIMEZONE)
             ),
             location="Location 1",
             description="Description 1",
@@ -110,7 +111,7 @@ def events():
             identifier="2",
             title="Event 2",
             date_time=datetime.fromisoformat("2024-07-15T15:00:00-03:00").replace(
-                tzinfo=ZoneInfo("America/Sao_Paulo")
+                tzinfo=ZoneInfo(settings.TIMEZONE)
             ),
             location="Location 2",
             description="Description 2",
@@ -121,7 +122,7 @@ def events():
             identifier="3",
             title="Event 3",
             date_time=datetime.fromisoformat("2024-07-20T18:00:00-03:00").replace(
-                tzinfo=ZoneInfo("America/Sao_Paulo")
+                tzinfo=ZoneInfo(settings.TIMEZONE)
             ),
             location="Location 3",
             description="Description 3",
@@ -132,7 +133,7 @@ def events():
             identifier="4",
             title="Event 4",
             date_time=datetime.fromisoformat("2024-08-05T19:00:00-03:00").replace(
-                tzinfo=ZoneInfo("America/Sao_Paulo")
+                tzinfo=ZoneInfo(settings.TIMEZONE)
             ),
             location="Location 4",
             description="Description 4",

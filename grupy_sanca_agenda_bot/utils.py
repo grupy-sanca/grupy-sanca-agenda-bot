@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
 
-import pytz
 from telegram import Update
 from telegram.ext import Application
 
@@ -27,23 +27,21 @@ async def reply_message(message: str, update: Update) -> None:
 
 
 def filter_events(events: Event, period=PeriodEnum.agenda):
-    tz = pytz.timezone("America/Sao_Paulo")
-
-    today = datetime.now(tz)
+    now = datetime.now(ZoneInfo(settings.TIMEZONE))
     if period == PeriodEnum.mensal:
-        start = today.replace(day=1, hour=0, minute=0, second=0)
+        start = now.replace(day=1, hour=0, minute=0, second=0)
         end = (start + timedelta(days=31)).replace(day=1, hour=0, minute=0, second=0) - timedelta(seconds=1)
     elif period == PeriodEnum.semanal:
-        start = today - timedelta(days=today.weekday())
+        start = now - timedelta(days=now.weekday())
         end = start + timedelta(days=6)
     elif period == PeriodEnum.hoje:
-        start = today.replace(hour=0, minute=0, second=0)
-        end = today.replace(hour=23, minute=59, second=59)
+        start = now.replace(hour=0, minute=0, second=0)
+        end = now.replace(hour=23, minute=59, second=59)
     elif period == PeriodEnum.agenda:
-        start = today
-        end = today + timedelta(days=365)
+        start = now
+        end = now + timedelta(days=365)
 
-    return [event for event in events if start <= event.date_time.astimezone(tz) <= end]
+    return [event for event in events if start <= event.date_time <= end]
 
 
 def slice_events(events, quantity):
@@ -53,8 +51,9 @@ def slice_events(events, quantity):
 def format_event_message(events: Event, header="", description=True):
     message = f"*📅 {header}:*\n\n"
     for event in events:
+        date_time = event.date_time.astimezone(ZoneInfo(settings.TIMEZONE)).strftime("%d/%m/%Y às %Hh%M")
         message += f"*{event.title}*\n\n"
-        message += f"*🕒 Data e Hora:* {event.date_time.strftime('%d/%m/%Y às %Hh%M')}\n"
+        message += f"*🕒 Data e Hora:* {date_time}\n"
         message += f"*📍 Local:* {event.location}\n\n"
         if description:
             message += f"*📝 Descrição:*\n{event.description}\n\n"

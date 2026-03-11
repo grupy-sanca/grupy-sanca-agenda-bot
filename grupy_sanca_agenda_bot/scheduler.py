@@ -1,7 +1,9 @@
-import pytz
+from zoneinfo import ZoneInfo
+
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 from grupy_sanca_agenda_bot import event_extractor
+from grupy_sanca_agenda_bot.settings import settings
 from grupy_sanca_agenda_bot.utils import (
     PeriodEnum,
     filter_events,
@@ -11,7 +13,7 @@ from grupy_sanca_agenda_bot.utils import (
 
 
 def setup_scheduler(application, loop):
-    scheduler = AsyncIOScheduler(timezone=pytz.timezone("America/Sao_Paulo"), event_loop=loop)
+    scheduler = AsyncIOScheduler(timezone=ZoneInfo(settings.TIMEZONE), event_loop=loop)
 
     scheduler.add_job(
         send_monthly_events,

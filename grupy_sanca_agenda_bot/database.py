@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import List
 
@@ -42,8 +42,14 @@ def save_cache(events: List[Event]):
         new_events = [event for event in events if event.identifier not in existing_ids]
         if not new_events:
             return
-
-        session.add_all([EventModel(**event.model_dump(exclude={"id"})) for event in new_events])
+        session.add_all(
+            [
+                EventModel(
+                    **{**event.model_dump(exclude={"id"}), "date_time": event.date_time.replace(tzinfo=None)}
+                )
+                for event in new_events
+            ]
+        )
         session.commit()
 
 
@@ -74,7 +80,7 @@ def load_cache() -> List[Event]:
     with SessionLocal() as session:
         events = session.scalars(
             select(EventModel)
-            .where(EventModel.date_time >= datetime.now())
+            .where(EventModel.date_time >= datetime.now(UTC).replace(tzinfo=None))
             .order_by(EventModel.date_time.asc())
         ).all()
 
@@ -83,7 +89,7 @@ def load_cache() -> List[Event]:
                 id=event.id,
                 identifier=event.identifier,
                 title=event.title,
-                date_time=event.date_time,
+                date_time=event.date_time.replace(tzinfo=UTC),
                 location=event.location,
                 description=event.description,
                 link=event.link,

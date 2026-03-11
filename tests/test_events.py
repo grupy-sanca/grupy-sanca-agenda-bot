@@ -95,7 +95,7 @@ class TestOpenEventExtractor:
 
     def test_extract_datetime(self):
         assert self.extractor.extract_datetime("2025-09-19T10:00:00+00:00") == datetime(
-            2025, 9, 19, 7, 0, tzinfo=ZoneInfo("America/Sao_Paulo")
+            2025, 9, 19, 7, 0, tzinfo=ZoneInfo(settings.TIMEZONE)
         )
 
     def test_extract_location(self):

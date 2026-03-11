@@ -69,7 +69,7 @@ async def test_reply_message():
     mock_update.message.reply_text.assert_awaited_once_with("test reply", parse_mode="Markdown")
 
 
-@freeze_time("2025-10-10 08:00:00", tz_offset=-3)
+@freeze_time("2025-10-10 08:00:00")
 def test_filter_events_mensal():
     events = [
         Event(
@@ -77,7 +77,7 @@ def test_filter_events_mensal():
             identifier="1",
             title="Evento 1",
             date_time=datetime.fromisoformat("2025-10-10T10:00:00-03:00"),
-            description="Descrição1",
+            description="Descrição 1",
             location="Local 1",
             link="http://example.com/event1",
         ),
@@ -86,7 +86,7 @@ def test_filter_events_mensal():
             identifier="2",
             title="Evento 2",
             date_time=datetime.fromisoformat("2025-10-20T10:00:00-03:00"),
-            description="Descrição2",
+            description="Descrição 2",
             location="Local 2",
             link="http://example.com/event2",
         ),
@@ -95,7 +95,7 @@ def test_filter_events_mensal():
             identifier="3",
             title="Evento 3",
             date_time=datetime.fromisoformat("2025-07-05T10:00:00-03:00"),
-            description="Descrição3",
+            description="Descrição 3",
             location="Local 3",
             link="http://example.com/event3",
         ),
@@ -105,7 +105,7 @@ def test_filter_events_mensal():
     assert all(event.title in ["Evento 1", "Evento 2"] for event in filtered)
 
 
-@freeze_time("2025-10-10 08:00:00", tz_offset=-3)
+@freeze_time("2025-10-10 08:00:00")
 def test_filter_events_semanal():
     events = [
         Event(
@@ -113,7 +113,7 @@ def test_filter_events_semanal():
             identifier="1",
             title="Evento 1",
             date_time=datetime.fromisoformat("2025-10-10T10:00:00-03:00"),
-            description="Descrição1",
+            description="Descrição 1",
             location="Local 1",
             link="http://example.com/event1",
         ),
@@ -122,7 +122,7 @@ def test_filter_events_semanal():
             identifier="2",
             title="Evento 2",
             date_time=datetime.fromisoformat("2025-10-11T10:00:00-03:00"),
-            description="Descrição2",
+            description="Descrição 2",
             location="Local 2",
             link="http://example.com/event2",
         ),
@@ -131,7 +131,7 @@ def test_filter_events_semanal():
             identifier="3",
             title="Evento 3",
             date_time=datetime.fromisoformat("2025-10-20T10:00:00-03:00"),
-            description="Descrição3",
+            description="Descrição 3",
             location="Local 3",
             link="http://example.com/event3",
         ),
@@ -141,7 +141,7 @@ def test_filter_events_semanal():
     assert all(event.title in ["Evento 1", "Evento 2"] for event in filtered)
 
 
-@freeze_time("2025-10-10 08:00:00", tz_offset=-3)
+@freeze_time("2025-10-10 08:00:00")
 def test_filter_events_hoje():
     events = [
         Event(
@@ -149,7 +149,7 @@ def test_filter_events_hoje():
             identifier="1",
             title="Evento 1",
             date_time=datetime.fromisoformat("2025-10-10T10:00:00-03:00"),
-            description="Descrição1",
+            description="Descrição 1",
             location="Local 1",
             link="http://example.com/event1",
         ),
@@ -158,7 +158,7 @@ def test_filter_events_hoje():
             identifier="2",
             title="Evento 2",
             date_time=datetime.fromisoformat("2025-10-11T10:00:00-03:00"),
-            description="Descrição2",
+            description="Descrição 2",
             location="Local 2",
             link="http://example.com/event2",
         ),
@@ -167,7 +167,7 @@ def test_filter_events_hoje():
             identifier="3",
             title="Evento 3",
             date_time=datetime.fromisoformat("2025-10-12T10:00:00-03:00"),
-            description="Descrição3",
+            description="Descrição 3",
             location="Local 3",
             link="http://example.com/event3",
         ),
@@ -175,6 +175,41 @@ def test_filter_events_hoje():
     filtered = filter_events(events, period=PeriodEnum.hoje)
     assert len(filtered) == 1
     assert filtered[0].title == "Evento 1"
+
+
+@freeze_time("2025-10-10 15:45:00")
+def test_filter_events_agenda():
+    events = [
+        Event(
+            id=None,
+            identifier="1",
+            title="Evento 1",
+            date_time=datetime.fromisoformat("2025-10-10T10:00:00-03:00"),
+            description="Descrição 1",
+            location="Local 1",
+            link="http://example.com/event1",
+        ),
+        Event(
+            id=None,
+            identifier="2",
+            title="Evento 2",
+            date_time=datetime.fromisoformat("2025-10-10T16:00:00-03:00"),
+            description="Descrição 2",
+            location="Local 2",
+            link="http://example.com/event2",
+        ),
+        Event(
+            id=None,
+            identifier="3",
+            title="Evento 3",
+            date_time=datetime.fromisoformat("2025-10-12T10:00:00-03:00"),
+            description="Descrição 3",
+            location="Local 3",
+            link="http://example.com/event3",
+        ),
+    ]
+    filtered = filter_events(events, period=PeriodEnum.agenda)
+    assert len(filtered) == 2
 
 
 @pytest.mark.parametrize(

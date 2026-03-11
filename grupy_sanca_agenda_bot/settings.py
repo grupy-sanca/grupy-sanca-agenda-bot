@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     TELEGRAM_BOT_TOKEN: str
     URL: str
     EVENT_EXTRACTOR: EventExtractorEnum = EventExtractorEnum.open_event
+    TIMEZONE: str = "America/Sao_Paulo"
     GROUP_CHAT_ID: str
     GROUP_CHAT_TOPIC_ID: str | None = None
     ADMINS: list[int] | None = None

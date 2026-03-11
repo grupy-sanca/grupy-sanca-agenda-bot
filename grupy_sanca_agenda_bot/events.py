@@ -1,8 +1,7 @@
 import html
 import re
 from asyncio import gather
-from datetime import datetime
-from zoneinfo import ZoneInfo
+from datetime import UTC, datetime
 
 from bs4 import BeautifulSoup
 from httpx import AsyncClient, Timeout
@@ -128,7 +127,7 @@ class OpenEventExtractor(Extractor):
         return resp.json() if resp else None
 
     def extract_datetime(self, timestamp):
-        return datetime.fromisoformat(timestamp).astimezone(ZoneInfo("America/Sao_Paulo"))
+        return datetime.fromisoformat(timestamp).astimezone(UTC)
 
     def extract_location(self, raw_location):
         return raw_location if raw_location else "Evento Online"
