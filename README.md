@@ -40,6 +40,8 @@ TELEGRAM_BOT_TOKEN=
 EVENT_EXTRACTOR=<meetup ou open_event>
 # URL para extrair os eventos (Meetup ou Open Event)
 URL=
+# Fuso horário do bot (padrão: America/Sao_Paulo)
+TIMEZONE=America/Sao_Paulo
 # ID do grupo no Telegram onde o bot mandará as mensagens agendadas
 GROUP_CHAT_ID=
 # ID do tópico do grupo no Telegram onde o bot mandará as mensagens agendadas (opcional)

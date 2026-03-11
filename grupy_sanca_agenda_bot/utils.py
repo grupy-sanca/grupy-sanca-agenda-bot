@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
 from telegram import Update
@@ -27,7 +27,7 @@ async def reply_message(message: str, update: Update) -> None:
 
 
 def filter_events(events: Event, period=PeriodEnum.agenda):
-    now = datetime.now(timezone.utc)
+    now = datetime.now(ZoneInfo(settings.TIMEZONE))
     if period == PeriodEnum.mensal:
         start = now.replace(day=1, hour=0, minute=0, second=0)
         end = (start + timedelta(days=31)).replace(day=1, hour=0, minute=0, second=0) - timedelta(seconds=1)
@@ -51,7 +51,7 @@ def slice_events(events, quantity):
 def format_event_message(events: Event, header="", description=True):
     message = f"*📅 {header}:*\n\n"
     for event in events:
-        date_time = event.date_time.astimezone(ZoneInfo("America/Sao_Paulo")).strftime("%d/%m/%Y às %Hh%M")
+        date_time = event.date_time.astimezone(ZoneInfo(settings.TIMEZONE)).strftime("%d/%m/%Y às %Hh%M")
         message += f"*{event.title}*\n\n"
         message += f"*🕒 Data e Hora:* {date_time}\n"
         message += f"*📍 Local:* {event.location}\n\n"
