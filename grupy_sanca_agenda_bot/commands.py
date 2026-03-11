@@ -3,6 +3,7 @@ from telegram.ext import ContextTypes
 
 from grupy_sanca_agenda_bot import event_extractor
 from grupy_sanca_agenda_bot.constants import PeriodEnum
+from grupy_sanca_agenda_bot.database import update_cache
 from grupy_sanca_agenda_bot.settings import settings
 from grupy_sanca_agenda_bot.utils import (
     check_is_period_valid,
@@ -55,7 +56,21 @@ async def agenda(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 async def force_update(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if settings.ADMINS and update.message.from_user.id in settings.ADMINS:
-        await event_extractor.load_events(use_cache=False)
+        if not context.args or not context.args[0].isdigit() or int(context.args[0]) <= 0:
+            await reply_message(
+                "Uso: /force_update <N> — informe um número inteiro positivo de eventos para atualizar",
+                update,
+            )
+            return
+
+        n = int(context.args[0])
+        events = await event_extractor.load_events(use_cache=False, save=False)
+        updated = slice_events(events, n)
+        update_cache(updated)
+        await reply_message(
+            f"✅ Cache atualizado com {len(updated)} evento(s).",
+            update,
+        )
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
