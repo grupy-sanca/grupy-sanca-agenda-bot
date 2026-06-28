@@ -60,9 +60,11 @@ def update_cache(events: List[Event]):
 
     with SessionLocal() as session:
         for event in events:
+            event_data = event.model_dump(exclude={"id"})
+            event_data["date_time"] = event.date_time.astimezone(UTC).replace(tzinfo=None)
             stmt = (
                 sqlite_insert(EventModel)
-                .values(**event.model_dump(exclude={"id"}))
+                .values(**event_data)
                 .on_conflict_do_update(
                     index_elements=["identifier"],
                     set_={

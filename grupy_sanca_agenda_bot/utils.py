@@ -26,7 +26,7 @@ async def reply_message(message: str, update: Update) -> None:
     await update.message.reply_text(message, parse_mode="Markdown")
 
 
-def filter_events(events: Event, period=PeriodEnum.agenda):
+def filter_events(events: list[Event], period=PeriodEnum.agenda):
     now = datetime.now(ZoneInfo(settings.TIMEZONE))
     if period == PeriodEnum.mensal:
         start = now.replace(day=1, hour=0, minute=0, second=0)
@@ -48,7 +48,7 @@ def slice_events(events, quantity):
     return events[:quantity]
 
 
-def format_event_message(events: Event, header="", description=True):
+def format_event_message(events: list[Event], header="", description=True):
     message = f"*📅 {header}:*\n\n"
     for event in events:
         date_time = event.date_time.astimezone(ZoneInfo(settings.TIMEZONE)).strftime("%d/%m/%Y às %Hh%M")

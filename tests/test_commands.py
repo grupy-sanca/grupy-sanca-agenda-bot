@@ -2,16 +2,18 @@ from unittest import mock
 
 from freezegun import freeze_time
 
-from grupy_sanca_agenda_bot.commands import agenda, force_update, next
+from grupy_sanca_agenda_bot.commands import agenda, force_update, next, start
 from grupy_sanca_agenda_bot.settings import settings
 
 
+@mock.patch("grupy_sanca_agenda_bot.commands.reply_message")
 @mock.patch("grupy_sanca_agenda_bot.commands.event_extractor.load_events")
-async def test_force_update_no_admin(mock_load_events):
+async def test_force_update_no_admin(mock_load_events, mock_reply_message):
     mock_update = mock.MagicMock()
     mock_update.message.from_user.id = 999
     await force_update(mock_update, mock.Mock())
     mock_load_events.assert_not_called()
+    mock_reply_message.assert_called_once_with("Você não tem permissão para usar este comando.", mock_update)
 
 
 @mock.patch("grupy_sanca_agenda_bot.commands.update_cache")
@@ -29,14 +31,16 @@ async def test_force_update_is_admin(mock_load_events, mock_reply_message, mock_
     mock_reply_message.assert_called_once()
 
 
+@mock.patch("grupy_sanca_agenda_bot.commands.reply_message")
 @mock.patch("grupy_sanca_agenda_bot.commands.event_extractor.load_events")
 @mock.patch("grupy_sanca_agenda_bot.commands.settings")
-async def test_force_update_empty_admin(mock_settings, mock_load_events):
+async def test_force_update_empty_admin(mock_settings, mock_load_events, mock_reply_message):
     mock_settings.ADMINS = None
     mock_update = mock.MagicMock()
     mock_update.message.from_user.id = settings.ADMINS[0]
     await force_update(mock_update, mock.Mock())
     mock_load_events.assert_not_called()
+    mock_reply_message.assert_called_once_with("Você não tem permissão para usar este comando.", mock_update)
 
 
 @mock.patch("grupy_sanca_agenda_bot.commands.reply_message")
@@ -240,3 +244,17 @@ async def test_agenda_with_wrong_period(mock_load_events, mock_reply_message, ev
         "Valor inválido, escolha entre: mensal, semanal, hoje, ou passe um número inteiro positivo",
         mock_update,
     )
+
+
+@mock.patch("grupy_sanca_agenda_bot.commands.reply_message")
+async def test_start(mock_reply_message):
+    mock_update = mock.MagicMock()
+    mock_context = mock.Mock()
+    await start(mock_update, mock_context)
+    mock_reply_message.assert_called_once()
+    message = mock_reply_message.call_args[0][0]
+    assert "Fique por dentro de todos os eventos do grupy-sanca!" in message
+    assert "/proximo" in message
+    assert "/agenda" in message
+    assert "Segunda-feira às 9h" in message
+    assert "Todos os dias às 12h" in message

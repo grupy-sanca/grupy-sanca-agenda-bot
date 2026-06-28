@@ -13,7 +13,7 @@ logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s
 def bot():
     application = Application.builder().token(settings.TELEGRAM_BOT_TOKEN).build()
 
-    loop = asyncio.get_event_loop()
+    loop = asyncio.new_event_loop()
     setup_scheduler(application, loop)
 
     application.add_handler(CommandHandler("start", start))
