@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from textwrap import dedent
 from unittest import mock
 from zoneinfo import ZoneInfo
@@ -24,9 +24,9 @@ class TestMeetupExtractor:
         assert self.extractor.extract_title(meetup_event_page_soup) == "#12 PyLestras do grupy-sanca @ Qive"
 
     def test_extract_datetime(self, meetup_event_page_soup):
-        assert self.extractor.extract_datetime(meetup_event_page_soup) == datetime.fromisoformat(
-            "2024-12-07T13:59:00-03:00"
-        )
+        result = self.extractor.extract_datetime(meetup_event_page_soup)
+        assert result == datetime.fromisoformat("2024-12-07T13:59:00-03:00")
+        assert result.tzinfo == timezone.utc
 
     def test_extract_location(self, meetup_event_page_soup):
         assert (
@@ -183,3 +183,104 @@ class TestOpenEventExtractor:
         assert len(respx_mock.calls) == 1
 
         mock_save_cache.assert_called_once_with(events)
+
+
+class TestExtractorErrorHandling:
+    def test_get_request_success(self):
+        extractor = MeetupExtractor(settings.URL)
+        with mock.patch("grupy_sanca_agenda_bot.events.AsyncClient") as mock_client:
+            mock_response = mock.MagicMock()
+            mock_response.status_code = 200
+            mock_client.return_value.__aenter__.return_value.get.return_value = mock_response
+
+            async def run_test():
+                result = await extractor._get_request("http://example.com")
+                assert result == mock_response
+
+            import asyncio
+
+            asyncio.run(run_test())
+
+    def test_get_request_non_200(self):
+        extractor = MeetupExtractor(settings.URL)
+        with mock.patch("grupy_sanca_agenda_bot.events.AsyncClient") as mock_client:
+            mock_response = mock.MagicMock()
+            mock_response.status_code = 404
+            mock_client.return_value.__aenter__.return_value.get.return_value = mock_response
+
+            async def run_test():
+                result = await extractor._get_request("http://example.com")
+                assert result is None
+
+            import asyncio
+
+            asyncio.run(run_test())
+
+    def test_get_request_exception(self):
+        extractor = MeetupExtractor(settings.URL)
+        with mock.patch("grupy_sanca_agenda_bot.events.AsyncClient") as mock_client:
+            mock_client.return_value.__aenter__.return_value.get.side_effect = Exception("Network error")
+
+            async def run_test():
+                result = await extractor._get_request("http://example.com")
+                assert result is None
+
+            import asyncio
+
+            asyncio.run(run_test())
+
+    def test_meetup_get_html_content_with_content(self):
+        extractor = MeetupExtractor(settings.URL)
+        with mock.patch.object(extractor, "_get_request") as mock_get:
+            mock_response = mock.MagicMock()
+            mock_response.text = "<html>content</html>"
+            mock_get.return_value = mock_response
+
+            async def run_test():
+                result = await extractor.get_html_content("http://example.com")
+                assert result == "<html>content</html>"
+
+            import asyncio
+
+            asyncio.run(run_test())
+
+    def test_meetup_get_html_content_without_content(self):
+        extractor = MeetupExtractor(settings.URL)
+        with mock.patch.object(extractor, "_get_request") as mock_get:
+            mock_get.return_value = None
+
+            async def run_test():
+                result = await extractor.get_html_content("http://example.com")
+                assert result is None
+
+            import asyncio
+
+            asyncio.run(run_test())
+
+    def test_open_event_get_json_content_with_content(self):
+        extractor = OpenEventExtractor(settings.URL)
+        with mock.patch.object(extractor, "_get_request") as mock_get:
+            mock_response = mock.MagicMock()
+            mock_response.json.return_value = {"data": []}
+            mock_get.return_value = mock_response
+
+            async def run_test():
+                result = await extractor.get_json_content("http://example.com")
+                assert result == {"data": []}
+
+            import asyncio
+
+            asyncio.run(run_test())
+
+    def test_open_event_get_json_content_without_content(self):
+        extractor = OpenEventExtractor(settings.URL)
+        with mock.patch.object(extractor, "_get_request") as mock_get:
+            mock_get.return_value = None
+
+            async def run_test():
+                result = await extractor.get_json_content("http://example.com")
+                assert result is None
+
+            import asyncio
+
+            asyncio.run(run_test())

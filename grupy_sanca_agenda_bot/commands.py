@@ -58,7 +58,7 @@ async def force_update(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     if settings.ADMINS and update.message.from_user.id in settings.ADMINS:
         if not context.args or not context.args[0].isdigit() or int(context.args[0]) <= 0:
             await reply_message(
-                "Uso: /force_update <N> — informe um número inteiro positivo de eventos para atualizar",
+                "Uso: /force_update \\<N\\> — informe um número inteiro positivo de eventos para atualizar",
                 update,
             )
             return
@@ -71,6 +71,8 @@ async def force_update(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
             f"✅ Cache atualizado com {len(updated)} evento(s).",
             update,
         )
+    else:
+        await reply_message("Você não tem permissão para usar este comando.", update)
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:

@@ -58,7 +58,7 @@ class MeetupExtractor(Extractor):
         date_time_element = soup.find("div", attrs={"data-event-label": "info"}).find("time", class_="block")[
             "datetime"
         ]
-        return datetime.fromisoformat(date_time_element)
+        return datetime.fromisoformat(date_time_element).astimezone(UTC)
 
     def extract_location(self, soup):
         try:

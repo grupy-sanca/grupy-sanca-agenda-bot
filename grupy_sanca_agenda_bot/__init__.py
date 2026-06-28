@@ -4,6 +4,6 @@ from grupy_sanca_agenda_bot.settings import settings
 if settings.EVENT_EXTRACTOR == EventExtractorEnum.open_event:
     from grupy_sanca_agenda_bot.events import OpenEventExtractor as EventExtractor
 elif settings.EVENT_EXTRACTOR == EventExtractorEnum.meetup:
-    from grupy_sanca_agenda_bot.events import MeetupEventExtractor as EventExtractor
+    from grupy_sanca_agenda_bot.events import MeetupExtractor as EventExtractor
 
 event_extractor = EventExtractor(settings.URL)
